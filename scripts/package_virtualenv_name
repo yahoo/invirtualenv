@@ -1,0 +1,43 @@
+#!/usr/bin/env python
+# Copyright (c) 2016, Yahoo Inc.
+# Copyrights licensed under the BSD License
+# See the accompanying LICENSE.txt file for terms.
+
+from __future__ import print_function
+import argparse
+import os
+from invirtualenv.package import package_versions
+
+
+def parse_arguments():
+    """
+    Parse the command line arguments
+    :return: argparse namespace object
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument('name', help='VirtualEnv name')
+    parser.add_argument(
+        '--requirement',
+        '-r',
+        default=[],
+        action='append',
+        help='Install from the given requirements file. This option can be '
+             'used multiple times.'
+    )
+    parser.add_argument(
+        '--virtualenvversion_package',
+        default=None,
+        help='Version the virtualenv based on the version of a package'
+    )
+    return parser.parse_args()
+
+
+if __name__ == '__main__':
+    if '/opt/python/bin' not in os.environ['PATH']:
+        os.environ['PATH'] = '/opt/python/bin:' + os.environ['PATH']
+    arguments = parse_arguments()
+    if arguments.virtualenvversion_package:
+        version = package_versions(arguments.virtualenvversion_package)[-1]
+        arguments.name += '_' + version
+
+    print(arguments.name)

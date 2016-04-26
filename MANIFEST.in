@@ -1,0 +1,8 @@
+include README.md
+include README.rst
+include README.txt
+
+prune .tox
+
+include invirtualenv/package_metadata.json
+include invirtualenv/deploy_default.conf

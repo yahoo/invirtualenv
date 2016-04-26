@@ -1,0 +1,60 @@
+#!/usr/bin/env python
+# Copyright (c) 2016, Yahoo Inc.
+# Copyrights licensed under the BSD License
+# See the accompanying LICENSE.txt file for terms.
+
+from __future__ import print_function
+import argparse
+import logging
+import os
+import sys
+from invirtualenv.plugin import create_package, package_formats
+
+
+if __name__ == '__main__':
+    # Log debug messages
+    logging.basicConfig(level=logging.DEBUG)
+
+    # Determine the package types we can create on the current system
+    package_choices = package_formats()
+
+    if not package_choices:
+        print(
+            'No packaging plugins are installed, cannot create packages',
+            file=sys.stderr
+        )
+        sys.exit(1)
+
+    package_file = None
+    parser = argparse.ArgumentParser(
+        description='Create a package containing python virtualenv based on '
+                    'the build.conf',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    if package_choices:
+        parser.add_argument(
+            '--package_type',
+            choices=package_choices,
+            default=package_choices[0],
+            help='Type of package to create'
+        )
+    else:
+        parser.add_argument(
+            '--package_type',
+            help='Type of package to create'
+        )
+
+    args = parser.parse_args()
+
+    if not package_choices:
+        print('No supported package systems found')
+        sys.exit(1)
+
+    package_file = create_package(args.package_type)
+
+    if package_file:
+        print('Generated package file: %s' % package_file)
+        sys.exit(0)
+
+    print('Unable to generate a package file', file=sys.stderr)
+    sys.exit(1)
