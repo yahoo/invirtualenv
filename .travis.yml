@@ -13,7 +13,7 @@ script:
   - tox-e $TOX_ENV_NAME
 
 install:
-  - pip install --user --upgrade detox
+  - pip install --upgrade detox
   
 after_failure:
   - for X in .tox/$TOX_ENV/log/*; do echo "$X\n"; cat "$X"; echo "\n\n"; done
