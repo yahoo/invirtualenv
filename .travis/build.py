@@ -11,7 +11,8 @@ test_env = version
 if version not in ['pypy', 'pypy3']:
   test_env = 'py' + version.replace('.', '')
 
-command = ['tox', '-e', 'test_env']
+command = ['tox', '-e', test_env]
+print('Running:' + ' '.join(command))
 try:
   subprocess.check_output(command)
   sys.exit(0)
