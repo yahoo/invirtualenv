@@ -1,14 +1,50 @@
 language: python
-python: 2.7
+
+python:
+  - 2.7
+  - 3.4
+  - 3.5
+  - pypy
+
 matrix:
-  fast_finish: true
-install:
-  - sudo apt-get update -qq
-  - pip install --upgrade pip setuptools detox virtualenv coveralls
+  include:
+  - os: linux
+    dist: trusty
+    python: '2.7'
+  - os: linux
+    dist: trusty
+    python: '3.4'
+  - os: linux
+    dist: trusty
+    python: '3.5'
+  - os: linux
+    dist: trusty
+    python: pypy
+  - os: osx
+    language: objective-c
+    env: PYENV_VERSION=2.7.11
+  - os: osx
+    language: objective-c
+    env: PYENV_VERSION=3.5.1
+
 script:
-  - detox -v -v
+  - TOX_ENV_NAME="py`echo "$TRAVIS_PYTHON_VERSION"|sed "s/\.//"`"
+  - tox -v -v -e $TOX_ENV_NAME
+
+install:
+  - pip install --upgrade pip setuptools detox virtualenv
+
 after_success:
   coveralls
 after_failure:
   - for X in .tox/$TOX_ENV/log/*; do echo "$X\n"; cat "$X"; echo "\n\n"; done
   - echo "pip.log\n"; cat $HOME/.pip/pip.log
+
+notifications:
+  irc:
+    channels: "irc.freenode.org#invirtualenv"
+    template:
+      - "%{repository}@%{branch}: %{message} (%{build_url})"
+    on_success: change
+    on_failure: change
+  email: false
