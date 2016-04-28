@@ -9,8 +9,9 @@ python:
 sudo: false
 
 script:
-  - TOX_ENV_NAME="py`echo "$TRAVIS_PYTHON_VERSION"|sed "s/\.//"`"
-  - tox -e $TOX_ENV_NAME
+  - TOX_COMMAND="tox -e py`echo "$TRAVIS_PYTHON_VERSION"|sed "s/\.//"`"
+  - echo "Running: $TOX_COMMAND"
+  - `$TOX_COMMAND`
 
 install:
   - pip install --upgrade tox
