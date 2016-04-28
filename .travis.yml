@@ -6,6 +6,8 @@ python:
   - 3.5
   - pypy
 
+sudo: false
+
 script:
   - TOX_ENV_NAME="py`echo "$TRAVIS_PYTHON_VERSION"|sed "s/\.//"`"
   - tox -v -v -e $TOX_ENV_NAME
