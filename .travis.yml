@@ -10,10 +10,10 @@ sudo: false
 
 script:
   - TOX_ENV_NAME="py`echo "$TRAVIS_PYTHON_VERSION"|sed "s/\.//"`"
-  - tox-e $TOX_ENV_NAME
+  - tox -e $TOX_ENV_NAME
 
 install:
-  - pip install --upgrade detox
+  - pip install --upgrade tox
   
 after_failure:
   - for X in .tox/$TOX_ENV/log/*; do echo "$X\n"; cat "$X"; echo "\n\n"; done
