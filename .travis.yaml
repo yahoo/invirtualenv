@@ -4,9 +4,9 @@ matrix:
   fast_finish: true
 install:
   - sudo apt-get update -qq
-  - pip install --upgrade pip setuptools tox virtualenv coveralls
+  - pip install --upgrade pip setuptools detox virtualenv coveralls
 script:
-  - tox -v -v
+  - detox -v -v
 after_success:
   coveralls
 after_failure:
