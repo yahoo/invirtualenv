@@ -147,7 +147,7 @@ def generate_parsed_config_file(source=None, dest=None):
         Path to the generated config file
     """
     config_data = None
-    if not source:
+    if not source:  # pragma: no cover
         source = 'deploy.conf'
 
     if isinstance(source, list):
@@ -156,7 +156,7 @@ def generate_parsed_config_file(source=None, dest=None):
     with open(source) as config_data_handle:
         config_data = config_data_handle.read()
 
-    if not config_data:
+    if not config_data:  # pragma: no cover
         return None
 
     template = Template(config_data)

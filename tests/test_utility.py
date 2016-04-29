@@ -94,6 +94,10 @@ class TestUtility(unittest.TestCase):
         self.assertEqual(result, 'bar')
         del os.environ['str_format_env']
 
+    def test__csv_list(self):
+        result = utility.csv_list('1,2')
+        self.assertEqual(result, ['1', '2'])
+
 
 if __name__ == '__main__':
     test_suite = unittest.TestLoader().loadTestsFromTestCase(TestUtility)

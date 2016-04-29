@@ -68,7 +68,8 @@ class TestDeploy(unittest.TestCase):
         config_file = os.path.join(self.venv_dir, 'deploy_default.conf')
         with open(config_file, 'w') as config_handle:
             config_handle.write(
-                "[global]\nname=%s\nvirtualenv_dir=%s\n" % (
+                "[global]\nname=%s\nvirtualenv_dir=%s\n"
+                "[pip]\ndeps:\n    pip\n" % (
                     venv_name,
                     self.venv_dir
                 )

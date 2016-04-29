@@ -15,10 +15,10 @@ __directory__ = os.path.dirname(__file__)
 __version__ = '0.0.0'
 
 if hasattr(sys, "_MEIPASS"):
-    __directory__ = sys._MEIPASS  # pylint: disable=E1101,W0212
+    __directory__ = sys._MEIPASS  # pragma: no cover
 
 __metadata_filename__ = os.path.join(__directory__, 'package_metadata.json')
-if os.path.exists(__metadata_filename__):
+if os.path.exists(__metadata_filename__):  # pragma: no cover
     with open(__metadata_filename__) as __metadata_handle:
         __metadata__ = json.load(__metadata_handle)
         __version__ = __metadata__['version']

@@ -31,6 +31,10 @@ class TestPackage(unittest.TestCase):
         result = package.package_versions('invirtualenv')
         self.assertTrue(len(result[0].split('.')) == 3)
 
+    def test_strip_from_end(self):
+        result = package.strip_from_end("hello.conf", '.conf')
+        self.assertEqual(result, 'hello')
+
 
 if __name__ == '__main__':
     test_suite = unittest.TestLoader().loadTestsFromTestCase(TestPackage)
