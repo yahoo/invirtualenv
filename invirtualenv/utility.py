@@ -108,7 +108,7 @@ def which(command):
     ------
     """
     result = find_executable(command)
-    if not result:
+    if not result:  # pragma: no cover
         raise CommandNotFound('Command %r was not found in the path' % command)
     return result
 
@@ -201,7 +201,7 @@ def str_format_env(value):
     return result
 
 
-def change_uid_gid(user_uid=None, user_gid=None):
+def change_uid_gid(user_uid=None, user_gid=None):  # pragma: no cover
     """
     preexec_fn to change the uid/gid when using subprocess
 
@@ -219,7 +219,7 @@ def change_uid_gid(user_uid=None, user_gid=None):
         os.setgid(user_gid)
 
 
-def chown_recursive(path, uid, gid):
+def chown_recursive(path, uid, gid):  # pragma: no cover
     """
     Change the ownership of all files and directories in path
 

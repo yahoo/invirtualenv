@@ -159,6 +159,22 @@ class TestConfig(unittest.TestCase):
         self.assertIsInstance(result, list)
         self.assertEqual(result, ['foo'])
 
+    def test_generate_parsed_config_file(self):
+        with tempfile.NamedTemporaryFile('w') as source_handle:
+            source_handle.write('foo = {{TEST_GEN_CONF}}\n')
+            source_handle.flush()
+            os.environ['TEST_GEN_CONF'] = '1'
+            outfile = config.generate_parsed_config_file(source_handle.name)
+            with open(outfile) as out_handle:
+                result = out_handle.read()
+                self.assertEqual(result, 'foo = 1')
+            os.remove(outfile)
+            del os.environ['TEST_GEN_CONF']
+
+    def test_plugin_package_formats(self):
+        result = plugin.package_formats()
+        self.assertIsInstance(result, list)
+
 
 if __name__ == '__main__':
     test_suite = unittest.TestLoader().loadTestsFromTestCase(TestConfig)

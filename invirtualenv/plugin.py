@@ -60,7 +60,7 @@ def package_formats():
     supported_types = []
     for entry_point in pkg_resources.iter_entry_points(
             group='invirtualenv.supported'
-    ):
+    ):  # pragma: no cover
         supported = entry_point.load()
         logger.debug(supported)
         supported_types += supported()
@@ -84,7 +84,7 @@ def config():
     config_types_dict = CONFIG_TYPES
     for entry_point in pkg_resources.iter_entry_points(
             group='invirtualenv.config'
-    ):
+    ):  # pragma: no cover
         default_config_function = entry_point.load()
         default_config, default_types = default_config_function()
         if default_config:
@@ -113,7 +113,7 @@ def config_update(configuration):
     """
     for entry_point in pkg_resources.iter_entry_points(
             group='invirtualenv.config_update'
-    ):
+    ):  # pragma: no cover
         config_update_function = entry_point.load()
         config_update_function(configuration)
 
