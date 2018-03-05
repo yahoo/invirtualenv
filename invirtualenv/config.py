@@ -91,7 +91,7 @@ def get_configuration_dict(configuration=None, value_types=None):
     """
     if not value_types:  # pragma: no cover
         value_types = config_types()
-    if configuration is None or configuration is '':  # pragma: no cover
+    if not configuration:  # pragma: no cover
         configuration = [
             # Config file that is part of the package
             # PACKAGE_DEFAULT_CONFIG,

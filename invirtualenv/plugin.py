@@ -6,6 +6,7 @@
 Functions to enable packaging plugin functionality
 """
 import logging
+import os
 import pkg_resources
 from .utility import update_recursive, csv_list
 
@@ -26,6 +27,7 @@ virtualenv_user =
 virtualenv_group =
 
 [pip]
+pip_version =
 deps:
 
 [rpm]
@@ -48,6 +50,22 @@ CONFIG_TYPES = {
 }
 
 
+class InvirtualenvPlugin(object):
+    package_formats = []
+    config_default = ""
+    config_types = {}
+
+    def create_package(self, package_type):
+        return None
+
+
+def installed_plugins():
+    plugins = []
+    for entry_point in pkg_resources.iter_entry_points(group='invirtualenv.plugin'):
+        plugins.append(entry_point.load())
+    return plugins
+
+
 def package_formats():
     """
     Get a list of all the supported package types
@@ -58,12 +76,17 @@ def package_formats():
         A list of supported package type strings
     """
     supported_types = []
+    for plugin in installed_plugins():
+        supported_types += plugin.package_formats
+
+    # Legacy plugin support
     for entry_point in pkg_resources.iter_entry_points(
             group='invirtualenv.supported'
     ):  # pragma: no cover
         supported = entry_point.load()
         logger.debug(supported)
         supported_types += supported()
+
     supported_types.sort()
     logger.debug('Supported package types: %s', supported_types)
     return supported_types
@@ -82,6 +105,16 @@ def config():
     """
     config_string = CONFIG_DEFAULT
     config_types_dict = CONFIG_TYPES
+
+    for plugin in installed_plugins():
+        if plugin.config_default:
+            config_string += plugin.config_default + os.linesep
+        if plugin.config_types:
+            config_types_dict = update_recursive(
+                config_types_dict, plugin.config_types
+            )
+
+    # Legacy plugin support
     for entry_point in pkg_resources.iter_entry_points(
             group='invirtualenv.config'
     ):  # pragma: no cover
@@ -161,6 +194,12 @@ def create_package(package_type):
         The package type to create a package for
 
     """
+    for plugin in installed_plugins():
+        package_name = plugin.create_package(package_type)
+        if package_name:
+            return package_name
+
+    # Legacy plugin support
     for entry_point in pkg_resources.iter_entry_points(
             group='invirtualenv.create_package'
     ):

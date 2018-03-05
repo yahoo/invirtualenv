@@ -71,13 +71,13 @@ def package_versions(package, pypi_url=None):
         The python package to search for
 
     pypi_url : str, optional
-        The artifactory URL to send the request to, defaults to the production
-        artifactory edge proxy endpoint.
+        The pypi URL to send the request to, defaults to the production
+        pypi endpoint.
 
     Returns
     -------
     list
-        A list of all packages found on artifactory.  The list will be
+        A list of all packages found on pypi.  The list will be
         empty if there were no versions found.
     """
     if pypi_url:

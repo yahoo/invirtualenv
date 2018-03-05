@@ -162,8 +162,8 @@ def build_virtualenv(
             raise BuildException('Virtualenv create failed')
         os.chdir(cwd)
 
-    for directory in ['conf', 'logs']:
-        filename = os.path.join(virtualenv_dir, directory)
+    for directory_name in ['conf', 'logs']:
+        filename = os.path.join(virtualenv_dir, directory_name)
         if not os.path.exists(filename):
             logger.debug('Creating %r directory', filename)
             os.makedirs(filename)
@@ -171,7 +171,8 @@ def build_virtualenv(
 
 
 def install_requirements(
-        requirements, virtualenv, user=None, upgrade=False, verbose=False
+        requirements, virtualenv, user=None, upgrade=False, verbose=False,
+        pip_version=None, use_index=True
 ):
     """
     Open one or more requirements files and run pip -r to install them
@@ -192,6 +193,13 @@ def install_requirements(
 
     verbose : bool
         If True, provides status output while running.
+
+    pip_version: str, optional
+        Install the requirements with the specified version of pip
+
+    use_index : bool, optional
+        Allow pip to use an external index
+        Default=True
     """
     logger.info(
         'Installing requirements from requirements file: %r '

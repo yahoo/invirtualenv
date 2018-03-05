@@ -39,7 +39,8 @@ class TestConfig(unittest.TestCase):
             'virtualenv_version_package': ''
         },
         'pip': {
-            'deps': []
+            'deps': [],
+            'pip_version': '',
         },
         'rpm': {
             'deps': [],
