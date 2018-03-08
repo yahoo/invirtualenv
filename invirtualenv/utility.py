@@ -180,6 +180,28 @@ def str_to_list(value):
     return result_list
 
 
+def str_to_dict(value):
+    """
+    Convert a newline terminated string of key=value into a dictionary.
+
+    Parameters
+    ----------
+    value : str
+        The string object to convert to a dictionary
+
+    Returns
+    -------
+    dict
+        Dictionary based on the string
+    """
+
+    result_dict = {}
+    for item in str_to_list(value):
+        split_setting = item.split('=')
+        result_dict[split_setting[0]] = '='.join(split_setting[1:])
+    return result_dict
+
+
 def str_format_env(value):
     """
     Substitute values with environment variables in a string

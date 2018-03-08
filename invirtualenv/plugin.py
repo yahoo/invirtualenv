@@ -8,7 +8,7 @@ Functions to enable packaging plugin functionality
 import logging
 import os
 import pkg_resources
-from .utility import update_recursive, csv_list
+from .utility import find_executable, update_recursive, csv_list
 
 
 logger = logging.getLogger(__name__)  # pylint: disable=C0103
@@ -50,15 +50,6 @@ CONFIG_TYPES = {
 }
 
 
-class InvirtualenvPlugin(object):
-    package_formats = []
-    config_default = ""
-    config_types = {}
-
-    def create_package(self, package_type):
-        return None
-
-
 def installed_plugins():
     plugins = []
     for entry_point in pkg_resources.iter_entry_points(group='invirtualenv.plugin'):
@@ -77,7 +68,7 @@ def package_formats():
     """
     supported_types = []
     for plugin in installed_plugins():
-        supported_types += plugin.package_formats
+        supported_types += plugin().supported_formats()
 
     # Legacy plugin support
     for entry_point in pkg_resources.iter_entry_points(
@@ -195,7 +186,7 @@ def create_package(package_type):
 
     """
     for plugin in installed_plugins():
-        package_name = plugin.create_package(package_type)
+        package_name = plugin().create_package(package_type)
         if package_name:
             return package_name
 

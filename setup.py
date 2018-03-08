@@ -91,7 +91,7 @@ if __name__ == '__main__':
         author_email='dhubbard',
         url='http=//github.com/yahoo/invirtualenv',
         license='LICENSE.txt',
-        packages=['invirtualenv'],
+        packages=['invirtualenv', 'invirtualenv_plugins'],
         long_description='Short description of this project',
         description='Short description of this project',
         install_requires=[
@@ -104,6 +104,9 @@ if __name__ == '__main__':
         package_data= {
             'invirtualenv': [
                 'package_metadata.json',
+            ],
+            'invirtualenv_plugins': [
+                'docker_scripts/*'
             ]
         },
         scripts= scripts()
