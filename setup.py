@@ -89,7 +89,7 @@ if __name__ == '__main__':
         version=get_version(METADATA_FILENAME),
         author='Dwight Hubbard',
         author_email='dhubbard',
-        url='http=//github.com/yahoo/invirtualenv',
+        url='https://github.com/yahoo/invirtualenv',
         license='LICENSE.txt',
         packages=['invirtualenv'],
         long_description='Short description of this project',
