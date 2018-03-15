@@ -94,6 +94,13 @@ if __name__ == '__main__':
         packages=['invirtualenv', 'invirtualenv_plugins'],
         long_description='Short description of this project',
         description='Short description of this project',
+        entry_points={
+            'console_scripts': ["invirtualenv=invirtualenv.cli:main"],
+            'invirtualenv.plugin': [
+                'docker=invirtualenv_plugins.docker:InvirtualenvDocker',
+                'rpm=invirtualenv_plugins.rpm:InvirtualenvRPM',
+            ],
+        },
         install_requires=[
             'jinja2',
             'pyinstaller',
