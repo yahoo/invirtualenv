@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import os
 import subprocess
 
@@ -16,6 +16,8 @@ def init_debian():
     if not os.path.exists('/usr/bin/apt-get'):
         return
 
+    print('Configuring container for debian packaging')
+    os.environ['DEBIAN_FRONTEND'] = 'noninteractive'
     subprocess.check_call(['apt-get', 'update'])
     subprocess.check_call(['apt-get', 'upgrade', '-y'])
     subprocess.check_call(['apt-get', 'install', '-y', 'python-dev', 'python-pip', 'python-virtualenv'])
@@ -25,6 +27,7 @@ def init_rpm():
     if not os.path.exists('/usr/bin/yum'):
         return
 
+    print('Configuring container for rpm packaging')
     subprocess.check_call(['yum', 'upgrade', '-y'])
     subprocess.check_call(['yum', 'install', '-y', 'python-devel', 'python-virtualenv'])
 
@@ -54,3 +57,7 @@ def run():
     init_rpm()
 
     install_invirtualenv()
+
+
+if __name__ == '__main__':
+    run()

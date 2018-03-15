@@ -6,4 +6,4 @@ prune .tox
 
 include invirtualenv/package_metadata.json
 include invirtualenv/deploy_default.conf
-include invirtualenv_plugins/docker_scripts/docker_build
+include invirtualenv_plugins/docker_scripts/docker_build.sh

@@ -197,4 +197,3 @@ def install_prereq_packages():
                 for line in old_git_config:
                     if 'default=simple' not in line.replace(' ', ''):
                         file_handle.write(line + '\n')
-
