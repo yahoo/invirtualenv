@@ -23,16 +23,12 @@ def parse_cli_arguments():
     parser.add_argument('--deploy_conf', default='deploy.conf', help='Deploy configuration filename or url')
     command_parser = parser.add_subparsers(title='command', dest='command')
     list_plugins_parser = command_parser.add_parser('list_plugins', help='List the installed invirtualenv plugins')
-    if package_choices:
-        package_create_parser = command_parser.add_parser(
-            'create_package', help='Generate a package from a deployment configuration'
-        )
-        package_create_parser.add_argument(
-            'package_type',
-            choices=package_choices,
-            default=package_choices[0],
-            help='Type of package to create'
-        )
+    package_create_parser = command_parser.add_parser('create_package', help='Generate a package from a deployment configuration')
+    package_create_parser.add_argument(
+        'package_type',
+        choices=package_choices,
+        help='Type of package to create'
+    )
     args = parser.parse_args()
     return args
 
