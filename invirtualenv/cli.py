@@ -5,6 +5,7 @@ import argparse
 import logging
 import os
 import sys
+from .contextmanager import InTemporaryDirectory
 from .exceptions import PackageGenerationFailure
 from .plugin import create_package, package_formats
 
@@ -40,7 +41,17 @@ def create_package_command(args):
     if not package_formats():
         raise PackageGenerationFailure('No supported package creation plugins found')
 
-    package_file = create_package(args.package_type)
+    deploy_config_contents = ''
+    with open(args.deploy_conf) as deploy_conf_handle:
+        deploy_config_contents = deploy_conf_handle.read()
+
+    destdir = os.getcwd()
+    with InTemporaryDirectory():
+        with open('deploy.conf', 'w') as deploy_conf_handle:
+            deploy_conf_handle.write(deploy_config_contents)
+        package_file = create_package(args.package_type)
+        if os.path.exists(package_file):
+            os.rename(package_file, os.path.join(destdir, package_file))
 
     if package_file:
         logging.debug('Generated package file: %s' % package_file)
