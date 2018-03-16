@@ -66,6 +66,10 @@ class InvirtualenvDocker(InvirtualenvPlugin):
         logger.debug('The docker command is not present, disabling the rpm plugin')
         return False
 
+    def generate_wheel_archive(self, filename=None):
+        # For docker containers we don't use wheels
+        pass
+
     def write_command_scripts(self):
         shutil.copyfile(pkg_resources.resource_filename(__name__, 'docker_scripts/docker_build.sh'), 'docker_build.sh')
 
