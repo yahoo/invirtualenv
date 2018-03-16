@@ -8,7 +8,7 @@ import json
 from setuptools import setup
 
 # Default version number
-BASE_VERSION = '1.3.0'
+BASE_VERSION = '1.4.0'
 METADATA_FILENAME = 'invirtualenv/package_metadata.json'
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 METADATA_FILE = os.path.join(BASEPATH, METADATA_FILENAME)
