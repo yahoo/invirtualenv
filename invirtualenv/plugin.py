@@ -170,6 +170,26 @@ def config_types():
     return config()[1]
 
 
+def create_package_configuration(package_type):
+    """
+    Create a package of a specific package type
+
+    This functions iterates all the registered invirtualenv.create_package
+    entry points and runs them passing the package_type argument to them.
+
+    These plugins should return None if they do not handle that package type.
+
+    Parameters
+    ----------
+    package_type : str
+        The package type to create a package for
+
+    """
+    for plugin in installed_plugins():
+        if package_type in plugin.package_formats:
+            return plugin().render_template_with_config()
+
+
 def create_package(package_type):
     """
     Create a package of a specific package type
@@ -198,5 +218,3 @@ def create_package(package_type):
         package_name = package(package_type)
         if package_name:
             return package(package_type)
-
-    return None
