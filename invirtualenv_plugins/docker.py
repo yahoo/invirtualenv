@@ -26,7 +26,6 @@ ENV PATH="/var/lib/invirtualenv/installvenv/bin:${PATH}"
 RUN chmod 755 /tmp/docker_build.sh
 RUN /tmp/docker_build.sh
 RUN rm /tmp/docker_build.sh
-
 {% if docker_container['entrypoint'] %}ENTRYPOINT {{docker_container['entrypoint']}}
 {% endif %}
 """
@@ -34,7 +33,7 @@ RUN rm /tmp/docker_build.sh
 DOCKER_CONFIG_DEFAULT = """[docker_container]
 base_image=ubuntu:17.10
 container_name=
-entrypoint=/bin/bash
+entrypoint=
 expose:
 deb_deps:
 files:
