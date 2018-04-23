@@ -1,5 +1,5 @@
 """
-Command line interface to invirtualenv
+Command line interface to invirtualenv v2
 """
 import argparse
 import logging
