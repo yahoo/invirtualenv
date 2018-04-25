@@ -7,6 +7,8 @@ Functions for creating and managing python virtual environments
 """
 from __future__ import print_function
 import getpass
+import hashlib
+import json
 import logging
 import os
 from pwd import getpwnam
@@ -64,6 +66,33 @@ def virtualenv_command(install_virtualenv=False):
     return which('virtualenv')
 
 
+def virtualenv_bin_file_hashes(virtualenv_dir):
+    """
+    Calculate a hash of all files in the virtualenv bin directory
+    Parameters
+    ----------
+    virtualenv_dir : str
+        The root directory of the virtualenv to operate on
+    Returns
+    -------
+    dict:
+        Key = Filename, value = hash
+    """
+    bin_dir = os.path.join(virtualenv_dir, 'bin')
+    if not os.path.exists(bin_dir):
+        return
+    result = {}
+    for filename in os.listdir(bin_dir):
+        full_filename = os.path.join(bin_dir, filename)
+        if os.path.isdir(full_filename):
+            continue
+        filehash = hashlib.sha256()
+        with open(full_filename, 'rb') as handle:
+            filehash.update(handle.read())
+        result[filename] = filehash.hexdigest()
+    return result
+
+
 def remove_virtualenv(name, directory=None):
     """
     Remove a virtualenv from a directory
@@ -78,6 +107,37 @@ def remove_virtualenv(name, directory=None):
     if os.path.exists(venv_directory):
         logger.debug('Removing virtualenv directory %r', venv_directory)
         shutil.rmtree(venv_directory)
+
+
+def upgrade_package_tools(virtualenv_directory, verbose=False):
+    """
+    Upgrade the packages used to install/build packages in the virtualenv
+    Parameters
+    ----------
+    virtualenv_directory: str
+        The directory that contains the virtualenv
+    """
+    python_interpreter = os.path.join(virtualenv_directory, 'bin/python')
+    pip_command = os.path.join(virtualenv_directory, 'bin/pip')
+
+    for command in [
+        [python_interpreter, pip_command, 'install', '--upgrade', 'pip'],
+        [python_interpreter, pip_command, 'install', '--upgrade', 'setuptools'],
+        [python_interpreter, pip_command, 'install', '--upgrade', 'wheel'],
+    ]:
+        try:
+            output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+            if verbose:
+                print(output.decode().strip())
+        except subprocess.CalledProcessError as error:
+            if verbose:
+                print(error.output.decode().strip())
+            logger.debug(error.output.decode().strip())
+            error_message = 'Upgrade command {command} in virtualenv {virtualenv_directory} failed'.format(
+                command=command,
+                virtualenv_directory=virtualenv_directory
+            )
+            raise BuildException(error_message)
 
 
 def build_virtualenv(
@@ -167,6 +227,14 @@ def build_virtualenv(
         if not os.path.exists(filename):
             logger.debug('Creating %r directory', filename)
             os.makedirs(filename)
+
+    upgrade_package_tools(virtualenv_dir, verbose=verbose)
+
+    before_binfiles_filename = os.path.join(virtualenv_dir, 'conf/binfiles_predeploy.json')
+    with open(before_binfiles_filename, 'w') as before_binfiles_handle:
+        before_binfiles = virtualenv_bin_file_hashes(virtualenv_dir)
+        before_binfiles_handle.write(json.dumps(before_binfiles))
+
     return virtualenv_dir
 
 
@@ -240,14 +308,12 @@ def install_requirements(
             os.path.join(virtualenv_bin, 'pip'),
             'install',
             '--cache-dir', pip_cache_dir,
-            '-r',
-            requirement,
+            '-r', requirement,
         ] + extra_pip_args
         logger.debug('Running command: %s', ' '.join(command))
         try:
             output = subprocess.check_output(
-                command,
-                stderr=subprocess.STDOUT,
+                command, stderr=subprocess.STDOUT,
                 # preexec_fn=change_uid_gid(user_uid=user_uid)
             )
             if verbose:
@@ -257,3 +323,11 @@ def install_requirements(
                 print(error.output.decode())
             logger.exception('PIP install operation failed')
             raise BuildException('PIP install operation failed')
+
+    after_binfiles_filename = os.path.join(
+        virtualenv, 'conf/binfiles_postdeploy.json'
+    )
+    logger.debug('Writing binfiles hashes to %r', after_binfiles_filename)
+    with open(after_binfiles_filename, 'w') as after_binfiles_handle:
+        after_binfiles = virtualenv_bin_file_hashes(virtualenv)
+        after_binfiles_handle.write(json.dumps(after_binfiles))

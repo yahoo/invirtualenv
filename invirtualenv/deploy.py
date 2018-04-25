@@ -313,9 +313,7 @@ def build_deploy_virtualenv(arguments=None, configuration=None, update_existing=
 
     if verbose:
         display_header('Fixing file ownership')
-    fix_file_ownership(
-        virtualenv, arguments.virtualenvuser, arguments.virtualenvgroup
-    )
+    fix_file_ownership(virtualenv, arguments.virtualenvuser, arguments.virtualenvgroup)
 
     return virtualenv
 
@@ -361,7 +359,7 @@ def deployed_bin_files(venv):
     return result
 
 
-def link_deployed_bin_files(venv, destbin):
+def link_deployed_bin_files(venv, destbin):  # pragma: no cover
     """
     Link the deployed files from the venv bin directory into the destbin
     directory.
@@ -404,7 +402,7 @@ def link_deployed_bin_files(venv, destbin):
         json.dump(linked_files, handle)
 
 
-def unlink_deployed_bin_files(venv):
+def unlink_deployed_bin_files(venv):  # pragma: no cover
     """
     Undo/delete the symlinks created by link_deployed_bin_files()
 
