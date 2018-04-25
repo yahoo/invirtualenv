@@ -112,8 +112,9 @@ class InvirtualenvPlugin(object):
             self.config['pip']['deps'] = deps
             if self.hash:
                 self.loaded_configuration['pip']['deps'] = '\n'.join(deps)
-            with open('deploy.conf', 'w') as deploy_conf_handle:
+            with open('deploy.conf.unparsed', 'w') as deploy_conf_handle:
                 self.loaded_configuration.write(deploy_conf_handle)
+            generate_parsed_config_file('deploy.conf.unparsed', 'deploy.conf')
             package = self.run_package_command(hashes, wheel_dir=wheel_dir)
             if package:
                 source = package

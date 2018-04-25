@@ -17,8 +17,7 @@ from jinja2 import Template
 
 from .package import package_scripts_directory
 from .plugin import config_defaults, config_types, config_update
-from .utility import str_to_bool, str_to_list, \
-    str_format_env
+from .utility import str_to_bool, str_to_list, str_format_env
 from .virtualenv import default_virtualenv_directory
 
 
