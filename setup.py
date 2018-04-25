@@ -83,7 +83,7 @@ def get_version(version_file):
 
 
 if __name__ == '__main__':
-    version = '0.0.0'
+    version = '1.0.0'
     setup(
         name='invirtualenv',
         version=get_version(METADATA_FILENAME),
