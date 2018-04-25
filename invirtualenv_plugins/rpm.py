@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 SPEC_TEMPLATE = """Summary: {{global['description']|default('No summary available')}}
 Name: {{global['name']}}
-Version: {{global['version']}}
+Version: {{global['version']|default('0.0.0')}}
 Release: {{rpm_package['release']|default('1')}}
 License: {{rpm_package['license']|default('Closed Source')}}
 Group: {{rpm_package['group']|default('Development')}}
