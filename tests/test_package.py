@@ -27,13 +27,21 @@ sys.path.append(bin_dir)
 )
 class TestPackage(unittest.TestCase):
 
-    def test_package_versons(self):
+    def test_package_scripts_directory(self):
+        result = package.package_scripts_directory()
+        self.assertIsInstance(result, str)
+
+    def test_package_versions(self):
         result = package.package_versions('invirtualenv')
         self.assertTrue(len(result[0].split('.')) == 3)
 
     def test_strip_from_end(self):
         result = package.strip_from_end("hello.conf", '.conf')
         self.assertEqual(result, 'hello')
+
+    def test_latest_package_version(self):
+        result = package.latest_package_version('invirtualenv')
+        self.assertIsInstance(result, str)
 
 
 if __name__ == '__main__':

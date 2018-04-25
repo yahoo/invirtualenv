@@ -127,7 +127,7 @@ def latest_package_version(package):
     return versions[-1]
 
 
-def install_prereq_packages():
+def install_prereq_packages():  # pragma: no cover
     """ Install packages required to build python """
     resulting_files = [
         '/usr/bin/gcc',
