@@ -127,8 +127,15 @@ def latest_package_version(package):
     return versions[-1]
 
 
-def install_prereq_packages():  # pragma: no cover
-    """ Install packages required to build python """
+def install_prereq_packages(test=False):
+    """
+    Install packages required to build python
+
+    Parameters
+    ----------
+    test: bool, optional
+        Don't run the actual command, if True
+    """
     resulting_files = [
         '/usr/bin/gcc',
         '/usr/bin/make'
@@ -168,25 +175,19 @@ def install_prereq_packages():  # pragma: no cover
         return
     redhat_release = '7.0'
     if os.path.exists('/etc/redhat-release'):
-        redhat_release = open(
-            '/etc/redhat-release'
-        ).readlines()[0].strip().split()[-2]
-    display_header(
-        'Installing build system needed for build on Redhat '
-        '%s' % redhat_release
-    )
+        redhat_release = open('/etc/redhat-release').readlines()[0].strip().split()[-2]
+    display_header('Installing build system needed for build on Redhat %s' % redhat_release)
     display_header('Installing additional build dependencies')
-    subprocess.check_output(['yum', '-y', 'install'] + needed_packages)
+    if not test:  # pragma: no cover
+        subprocess.check_output(['yum', '-y', 'install'] + needed_packages)
 
     display_header('Verifying needed dependencies where installed')
     for filename in resulting_files:
-        if not os.path.exists(filename):
+        if not test and not os.path.exists(filename):  # pragma: no cover
             raise BuildException('Required file %s is missing' % filename)
 
     if redhat_release.startswith('6'):
-        display_header(
-            'Fixing the user .gitconfig to work with git < 1.8'
-        )
+        display_header('Fixing the user .gitconfig to work with git < 1.8')
         gitconfig = os.path.exists(os.path.expanduser('~/.gitconfig'))
         if os.path.exists(gitconfig):
             old_git_config = []

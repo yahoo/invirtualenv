@@ -7,6 +7,7 @@ import os
 import sys
 import unittest
 from invirtualenv.cli import parse_cli_arguments, main
+from invirtualenv.contextmanager import InTemporaryDirectory
 from invirtualenv.plugin import package_formats
 
 
@@ -21,10 +22,12 @@ class TestCli(unittest.TestCase):
             sys.argv = self._orig_argv
             sys.argv = None
 
-    @unittest.skipIf(sys.version_info.major > 2, 'Python 3 does not raise this exception')
     def test__parse_cli_arguments__defaults(self):
         sys.argv = ['invirtualenv']
-        with self.assertRaises(SystemExit):
+        if sys.version_info.major < 3:
+            with self.assertRaises(SystemExit):
+                result = parse_cli_arguments()
+        else:
             result = parse_cli_arguments()
 
     def test__main__list_plugins(self):
@@ -33,6 +36,15 @@ class TestCli(unittest.TestCase):
         self.assertEqual(rc, 0)
         for plugin in package_formats():
             self.assertIn(plugin, output)
+
+    def test__get_setting_command(self):
+        with InTemporaryDirectory():
+            with open('deploy.conf', 'w') as write_handle:
+                write_handle.write('[global]\nname=foo\n')
+            sys.argv = ['invirtualenv', 'get_setting', 'global', 'name']
+            rc, output = main(test=True)
+            self.assertEqual(rc, 0)
+            self.assertEqual(output, 'foo')
 
 
 if __name__ == '__main__':
