@@ -81,10 +81,9 @@ class InvirtualenvRPM(InvirtualenvPlugin):
         # Make sure the configuration is sane
         # self.config['rpm_package']['deps'].append('invirtualenv')
         self.config['rpm_package']['cwd'] = os.getcwd()
-        description = self.config['global'].get('description', '')
-        if not description.strip():
+        description = self.config['global'].get('description', '').strip()
+        if not description:
             self.config['global']['description'] = 'No description available'
-        build_directory = os.path.join(os.getcwd(), 'build')
 
         # Get the packaging script
         for script in ['rpm_scripts/post_install.py', 'rpm_scripts/pre_uninstall.py']:

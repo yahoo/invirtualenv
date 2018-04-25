@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)  # pylint: disable=C0103
 CONFIG_DEFAULT = """[global]
 name =
 basepython =
-description =
+description = No description is available
 install_manifest =
 install_os_packages = False
 version =
