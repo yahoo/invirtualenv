@@ -15,7 +15,6 @@ script:
   - pycodestyle invirtualenv
   - pylint invirtualenv
   - pytest --cov=invirtualenv --cov-report=xml:cobertura.xml --cov-report term-missing tests/
-  - .travis/build.py
 
 matrix:
   fast_finish: true
