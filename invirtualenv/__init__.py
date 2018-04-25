@@ -31,7 +31,6 @@ __all__ = [
     'exceptions',
     'package',
     'plugin',
-    'static',
     'utility',
     'virtualenv'
 ]
