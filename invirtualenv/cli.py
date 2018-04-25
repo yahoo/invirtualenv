@@ -5,6 +5,7 @@ import argparse
 import logging
 import os
 import sys
+from .config import get_configuration_dict
 from .contextmanager import InTemporaryDirectory
 from .exceptions import PackageGenerationFailure
 from .plugin import create_package, create_package_configuration, get_package_plugin, package_formats
@@ -30,8 +31,38 @@ def parse_cli_arguments():
     package_create_parser = command_parser.add_parser('create_package', help='Generate a package from a deployment configuration')
     package_create_parser.add_argument('package_type', choices=package_choices, help='Type of package to create')
 
+    get_setting_parser = command_parser.add_parser('get_setting', help='Get a setting value from the configuration')
+    get_setting_parser.add_argument('section', help="the configuration section to get the setting from")
+    get_setting_parser.add_argument('item', help='The item to get from the configuration'
+                                                 '')
     args = parser.parse_args()
     return args
+
+
+def get_setting_command(args):
+    """
+    Get the value of a setting in the deploy.conf
+
+    Parameters
+    ----------
+    args: argparse.Namespace
+        The argparse parser namespace with the parsed cli settings
+
+    Returns
+    -------
+    str:
+        The value of the setting or None
+    """
+    LOGGER.debug('Getting value for %s=%s', args.section, args.item)
+    rc = 0
+    config = get_configuration_dict([args.deploy_conf])
+    try:
+        value = config[args.section][args.item]
+    except KeyError:
+        value = ''
+        rc = 1
+    LOGGER.debug('Got value %r for %s=%s', value, args.section, args.item)
+    return rc, value
 
 
 def create_config_command(args):
@@ -71,7 +102,7 @@ def create_package_command(args):
 
     orig_directory = os.getcwd()
     with InTemporaryDirectory():
-        with open('deploy.conf', 'w') as deploy_conf_handle:
+        with open(args.deploy_conf, 'w') as deploy_conf_handle:
             deploy_conf_handle.write(deploy_config_contents)
         package_file = create_package(args.package_type)
         dest_package_file = os.path.join(orig_directory, os.path.basename(package_file))
@@ -97,7 +128,7 @@ def list_plugins_command(args):
 
 
 def main(test=False):
-    logging.basicConfig(level=logging.DEBUG)
+    # logging.basicConfig(level=logging.DEBUG)
     args = parse_cli_arguments()
 
     rc = 0
@@ -108,7 +139,8 @@ def main(test=False):
         rc, output = create_config_command(args)
     elif args.command in ['list_plugins']:
         rc, output = list_plugins_command(args)
-
+    elif args.command in ['get_setting']:
+        rc, output = get_setting_command(args)
     if test:
         return rc, output
 
