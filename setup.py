@@ -91,7 +91,7 @@ if __name__ == '__main__':
         author_email='dhubbard',
         url='http=//github.com/yahoo/invirtualenv',
         license='LICENSE.txt',
-        packages=['invirtualenv', 'invirtualenv_plugins'],
+        packages=['invirtualenv', 'invirtualenv_plugins', 'invirtualenv_plugins.rpm_scripts'],
         long_description='Short description of this project',
         description='Short description of this project',
         entry_points={
@@ -107,6 +107,7 @@ if __name__ == '__main__':
             'requests',
             'six>=1.5',
             'virtualenv',
+            'configparser',
         ],
         package_data= {
             'invirtualenv': [

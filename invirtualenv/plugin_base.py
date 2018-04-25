@@ -7,6 +7,7 @@ Functions to enable packaging plugin functionality
 """
 import logging
 import os
+import shutil
 import subprocess
 import sys
 from jinja2 import Template
@@ -22,6 +23,7 @@ class InvirtualenvPlugin(object):
     package_formats = []
     config_default = ""
     config_types = {}
+    default_config_filename = 'invirtualenv.configuration'
     package_template = ''
     hash = None  # PIP hash algorithm to use, can be sha256, sha384, sha512 or None (no hashing)
 
@@ -97,6 +99,7 @@ class InvirtualenvPlugin(object):
         if package_type not in self.supported_formats():
             return None
 
+        original_directory = os.getcwd()
         with InTemporaryDirectory():
             tempdir = os.getcwd()
             wheel_dir = 'wheels'
@@ -111,7 +114,12 @@ class InvirtualenvPlugin(object):
                 self.loaded_configuration['pip']['deps'] = '\n'.join(deps)
             with open('deploy.conf', 'w') as deploy_conf_handle:
                 self.loaded_configuration.write(deploy_conf_handle)
-            return self.run_package_command(hashes, wheel_dir=wheel_dir)
+            package = self.run_package_command(hashes, wheel_dir=wheel_dir)
+            if package:
+                source = package
+                dest = os.path.join(original_directory, os.path.basename(package))
+                shutil.copyfile(source, dest)
+                return dest
 
     def generate_wheel_archive(self, filename=None):
         if not filename:
@@ -135,7 +143,9 @@ class InvirtualenvPlugin(object):
             return {}
         hashes = {}
         with working_dir(wheeldir):
-            cmd = self.pip_cmd + ['-q', 'wheel', '-w', '.'] + self.config['pip'].get('deps', [])
+            # deps = self.config['pip'].get('deps', []) + ['invirtualenv']
+            deps = self.config['pip'].get('deps', []) + ['invirtualenv', 'configparser']
+            cmd = self.pip_cmd + ['-q', 'wheel', '-w', '.'] + deps
             logger.debug('Running pip command %r to generate wheel packages', cmd)
             subprocess.check_call(cmd)
             for filename in os.listdir('.'):

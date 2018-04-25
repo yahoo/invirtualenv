@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)  # pylint: disable=C0103
 CONFIG_DEFAULT = """[global]
 name =
 basepython =
+description =
 install_manifest =
 install_os_packages = False
 version =
@@ -38,7 +39,7 @@ deps:
 CONFIG_TYPES = {
     'global': {
         'install_manifest': csv_list,
-        'install_os_packages': bool
+        'install_os_packages': bool,
     },
     'pip': {
         'deps': list
@@ -168,6 +169,25 @@ def config_types():
         values
     """
     return config()[1]
+
+
+def get_package_plugin(package_type):
+    """
+    Get a plugin for a specific package
+
+    Parameters
+    ----------
+    package_type: str
+        The package type to fetch
+
+    Returns
+    -------
+    InvirtualEnvPlugin:
+        The invirtualenv plugin for the specific package_type
+    """
+    for plugin in installed_plugins():
+        if package_type in plugin.package_formats:
+            return plugin
 
 
 def create_package_configuration(package_type):

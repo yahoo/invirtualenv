@@ -46,6 +46,7 @@ class InvirtualenvDocker(InvirtualenvPlugin):
     package_formats = ['docker']
     package_template = DOCKERFILE_TEMPLATE
     config_default = DOCKER_CONFIG_DEFAULT
+    default_config_filename = 'Dockerfile.invirtualenv'
     config_types = {
         'docker_container': {
             'base_image': str,
