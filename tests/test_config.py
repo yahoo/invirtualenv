@@ -29,7 +29,7 @@ class TestConfig(unittest.TestCase):
     default_config_dict = {
         'global': {
             'basepython': '',
-            'description': '',
+            'description': 'No description is available',
             'name': '',
             'install_os_packages': False,
             'install_manifest': [],
