@@ -36,6 +36,10 @@ class TestPackage(unittest.TestCase):
         result = package.strip_from_end("hello.conf", '.conf')
         self.assertEqual(result, 'hello')
 
+    def test_strip_from_end__no_suffix_found(self):
+        result = package.strip_from_end("hello.baz", '.conf')
+        self.assertEqual(result, 'hello.baz')
+
     def test_latest_package_version(self):
         result = package.latest_package_version('invirtualenv')
         self.assertIsInstance(result, str)

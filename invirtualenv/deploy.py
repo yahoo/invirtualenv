@@ -66,9 +66,7 @@ def fix_file_ownership(virtualenv, user, group):
         )
 
 
-def install_python_dependencies(
-        virtualenv, deps=None, requirements=None, upgrade=False,
-        verbose=False, pip_version=None, use_index=True):
+def install_python_dependencies(virtualenv, deps=None, requirements=None, upgrade=False, verbose=False, pip_version=None, use_index=True):
     """
     Install python dependencies from a requirements file or
     deploy.conf manifest
@@ -99,16 +97,13 @@ def install_python_dependencies(
     ------
     BuildException - If package installation fails
     """
-    if not deps and not requirements:
+    if not deps and not requirements:  # pragma: no cover
         if verbose:
             print('No requirements specified to install')
         return
 
     if deps:
-        logger.debug(
-            'Installing dependencies from configuration deps: %s',
-            ' '.join(deps)
-        )
+        logger.debug('Installing dependencies from configuration deps: %s', ' '.join(deps))
         with tempfile.NamedTemporaryFile() as requirements_handle:
             requirements_handle.write('\n'.join(deps).encode())
             requirements_handle.flush()
@@ -122,17 +117,14 @@ def install_python_dependencies(
                 use_index=use_index
             )
     if requirements:
-        logger.debug(
-            'Installing dependencies from requirements file %r',
-            requirements
-        )
+        logger.debug('Installing dependencies from requirements file %r', requirements)
         install_requirements(
             requirements, virtualenv=virtualenv, upgrade=upgrade,
             verbose=verbose, pip_version=pip_version, use_index=use_index
         )
 
 
-def install_rpm_dependencies(deps=None, fail_missing=True):
+def install_rpm_dependencies(deps=None, fail_missing=True):  # pragma: no cover
     """
     Install rpm dependencies from deploy.conf manifest
 
@@ -162,10 +154,7 @@ def install_rpm_dependencies(deps=None, fail_missing=True):
             subprocess.check_call(command)
 
 
-def build_deploy_virtualenv(
-        arguments=None, configuration=None, update_existing=True,
-        verbose=None
-):
+def build_deploy_virtualenv(arguments=None, configuration=None, update_existing=True, verbose=None):
     """
     Build and deploy a python virtualenv
 

@@ -10,9 +10,9 @@ import platform
 from xml.etree import ElementTree
 import subprocess
 
-try:
+try:  # pragma: no cover
     import configparser as ConfigParser
-except ImportError:
+except ImportError:  # pragma: no cover
     import ConfigParser
 
 import requests
@@ -80,18 +80,18 @@ def package_versions(package, pypi_url=None):
         A list of all packages found on pypi.  The list will be
         empty if there were no versions found.
     """
-    if pypi_url:
+    if pypi_url:  # pragma: no cover
         url = pypi_url
     else:
         index_url = 'https://pypi.python.org/simple'
-        if os.path.exists('/etc/pip.conf'):
+        if os.path.exists('/etc/pip.conf'):  # pragma: no cover
             cfg = ConfigParser.SafeConfigParser({'index-url': index_url})
             cfg.read('/etc/pip.conf')
             index_url = cfg.get('global', 'index-url')
         url = '%s/%s/' % (index_url, package)
     versions = []
     response = requests.get(url)
-    if response.status_code in [404]:
+    if response.status_code in [404]:  # pragma: no cover
         return []
     result = response.text
     tree = ElementTree.fromstring(result)
