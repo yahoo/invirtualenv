@@ -8,7 +8,7 @@ import json
 from setuptools import setup
 
 # Default version number
-BASE_VERSION = '1.3.0'
+BASE_VERSION = '1.4.0'
 METADATA_FILENAME = 'invirtualenv/package_metadata.json'
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 METADATA_FILE = os.path.join(BASEPATH, METADATA_FILENAME)
@@ -83,7 +83,7 @@ def get_version(version_file):
 
 
 if __name__ == '__main__':
-    version = '0.0.0'
+    version = '1.0.0'
     setup(
         name='invirtualenv',
         version=get_version(METADATA_FILENAME),
@@ -91,19 +91,30 @@ if __name__ == '__main__':
         author_email='dhubbard',
         url='http=//github.com/yahoo/invirtualenv',
         license='LICENSE.txt',
-        packages=['invirtualenv'],
+        packages=['invirtualenv', 'invirtualenv_plugins', 'invirtualenv_plugins.rpm_scripts'],
         long_description='Short description of this project',
         description='Short description of this project',
+        entry_points={
+            'console_scripts': ["invirtualenv=invirtualenv.cli:main"],
+            'invirtualenv.plugin': [
+                'docker=invirtualenv_plugins.docker:InvirtualenvDocker',
+                'rpm=invirtualenv_plugins.rpm:InvirtualenvRPM',
+            ],
+        },
         install_requires=[
             'jinja2',
             'pyinstaller',
             'requests',
             'six>=1.5',
             'virtualenv',
+            'configparser',
         ],
         package_data= {
             'invirtualenv': [
                 'package_metadata.json',
+            ],
+            'invirtualenv_plugins': [
+                'docker_scripts/*'
             ]
         },
         scripts= scripts()

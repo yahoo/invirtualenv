@@ -9,7 +9,7 @@ def run_tox_env(env_name):
     command = ['tox', '-e', env_name]
     print('Running:' + ' '.join(command))
     try:
-      subprocess.check_output(command)
+      subprocess.call(command)
       return 0
     except subprocess.CalledProcessError as commandfail:
       print('Tox failed with return code: %d' % commandfail.returncode)
@@ -25,7 +25,7 @@ if __name__ == '__main__':
       test_env = 'py' + version.replace('.', '')
 
     if version == '2.7':
-        result = run_tox_env('pep8')
+        result = run_tox_env('pycodestyle')
         if result:
             sys.exit(result)
 

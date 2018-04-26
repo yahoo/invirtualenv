@@ -17,8 +17,7 @@ from jinja2 import Template
 
 from .package import package_scripts_directory
 from .plugin import config_defaults, config_types, config_update
-from .utility import str_to_bool, str_to_list, \
-    str_format_env
+from .utility import str_to_bool, str_to_list, str_format_env
 from .virtualenv import default_virtualenv_directory
 
 
@@ -70,6 +69,43 @@ def cast_types(configuration, types_dict=None):
                 pass
 
 
+def get_configuration(configuration=None):
+    """
+    Parse a configuration file
+
+    Parameters
+    ----------
+    configuration : str or list, optional
+        A configuration file or list of configuration files to parse,
+        defaults to the deploy_default.conf file in the package and
+        deploy.conf in the current working directory.
+
+    Returns
+    -------
+    configparser
+        The parsed configuration
+    """
+    if not configuration:  # pragma: no cover
+        configuration = [
+            # Config file that is part of the package
+            # PACKAGE_DEFAULT_CONFIG,
+
+            # Any deploy.conf files in the current directory
+            'deploy.conf'
+        ]
+    config = ConfigParser()
+
+    # Set the config defaults
+    try:
+        config.read_string(config_defaults())
+    except AttributeError:
+        config.readfp(io.BytesIO(config_defaults()))
+
+    logger.debug('Working with default dict: %r', config_defaults())
+    config.read(configuration)
+    return config
+
+
 def get_configuration_dict(configuration=None, value_types=None):
     """
     Parse the configuration files
@@ -91,24 +127,9 @@ def get_configuration_dict(configuration=None, value_types=None):
     """
     if not value_types:  # pragma: no cover
         value_types = config_types()
-    if configuration is None or configuration is '':  # pragma: no cover
-        configuration = [
-            # Config file that is part of the package
-            # PACKAGE_DEFAULT_CONFIG,
 
-            # Any deploy.conf files in the current directory
-            'deploy.conf'
-        ]
-    config = ConfigParser()
+    config = get_configuration(configuration)
 
-    # Set the config defaults
-    try:
-        config.read_string(config_defaults())
-    except AttributeError:
-        config.readfp(io.BytesIO(config_defaults()))
-
-    logger.debug('Working with default dict: %r', config_defaults())
-    config.read(configuration)
     result_dict = {}
     for section in config.sections():
         result_dict[section] = {}

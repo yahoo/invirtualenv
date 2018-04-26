@@ -20,6 +20,7 @@ import sys
 import tempfile
 import unittest
 from invirtualenv import config, plugin
+from invirtualenv.contextmanager import InTemporaryDirectory
 
 
 class TestConfig(unittest.TestCase):
@@ -28,6 +29,7 @@ class TestConfig(unittest.TestCase):
     default_config_dict = {
         'global': {
             'basepython': '',
+            'description': 'No description is available',
             'name': '',
             'install_os_packages': False,
             'install_manifest': [],
@@ -39,7 +41,8 @@ class TestConfig(unittest.TestCase):
             'virtualenv_version_package': ''
         },
         'pip': {
-            'deps': []
+            'deps': [],
+            'pip_version': '',
         },
         'rpm': {
             'deps': [],
@@ -83,34 +86,40 @@ class TestConfig(unittest.TestCase):
         )
 
     def test_config_get_configuration_dict__default(self):
-        result = config.get_configuration_dict(
-            configuration=[],
-            value_types=plugin.config_types()
-        )
-        self.assertIsInstance(result, dict)
-        self.assertIn(
-            result['global']['virtualenv_dir'],
-            [
-                '/var/tmp/virtualenv',
-                '/tmp/virtualenv'
-            ]
-        )
-        result['global']['virtualenv_dir'] = '/var/tmp/virtualenv'
+        with InTemporaryDirectory():
+            result = config.get_configuration_dict(
+                configuration=[],
+                value_types=plugin.config_types()
+            )
+            self.assertIsInstance(result, dict)
+            if 'rpm_package' in result.keys():
+                del result['rpm_package']
+            if 'docker_container' in result.keys():
+                del result['docker_container']
 
-        self.assertTrue(
-            result['locations']['package_scripts'].endswith('package_scripts')
-        )
-        del result['locations']
-        result_pretty = json.dumps(result, indent=4, sort_keys=True)
-        expected_pretty = json.dumps(
-            self.default_config_dict, indent=4, sort_keys=True)
-        diff = difflib.unified_diff(
-            result_pretty.split('\n'), expected_pretty.split('\n')
-        )
-        logging.debug('Result: %s' % result_pretty)
-        logging.debug('Expected: %s' % expected_pretty)
-        logging.debug('Diff: %s' % '\n'.join(diff))
-        self.assertDictEqual(result,self.default_config_dict)
+            self.assertIn(
+                result['global']['virtualenv_dir'],
+                [
+                    '/var/tmp/virtualenv',
+                    '/tmp/virtualenv'
+                ]
+            )
+            result['global']['virtualenv_dir'] = '/var/tmp/virtualenv'
+
+            self.assertTrue(
+                result['locations']['package_scripts'].endswith('package_scripts')
+            )
+            del result['locations']
+            result_pretty = json.dumps(result, indent=4, sort_keys=True)
+            expected_pretty = json.dumps(
+                self.default_config_dict, indent=4, sort_keys=True)
+            diff = difflib.unified_diff(
+                result_pretty.split('\n'), expected_pretty.split('\n')
+            )
+            logging.debug('Result: %s' % result_pretty)
+            logging.debug('Expected: %s' % expected_pretty)
+            logging.debug('Diff: %s' % '\n'.join(diff))
+            self.assertDictEqual(result,self.default_config_dict)
 
     def test_config_get_configuration_dict__substitution(self):
         config_file = os.path.join(self.venv_dir, 'dict_subst.conf')
@@ -125,6 +134,11 @@ class TestConfig(unittest.TestCase):
             configuration=[config_file],
             value_types=plugin.config_types()
         )
+        if 'rpm_package' in result.keys():
+            del result['rpm_package']
+        if 'docker_container' in result.keys():
+            del result['docker_container']
+
         self.assertIsInstance(result, dict)
         self.assertIn(
             result['global']['virtualenv_dir'],

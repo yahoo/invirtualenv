@@ -7,6 +7,7 @@ Module to create/deploy a virtualenv
 """
 from __future__ import print_function
 import getpass
+import json
 import logging
 import os
 from pwd import getpwnam
@@ -65,9 +66,7 @@ def fix_file_ownership(virtualenv, user, group):
         )
 
 
-def install_python_dependencies(
-        virtualenv, deps=None, requirements=None, upgrade=False,
-        verbose=False):
+def install_python_dependencies(virtualenv, deps=None, requirements=None, upgrade=False, verbose=False, pip_version=None, use_index=True):
     """
     Install python dependencies from a requirements file or
     deploy.conf manifest
@@ -90,20 +89,21 @@ def install_python_dependencies(
         Display command output when running the dependency operations,
         Default=False
 
+    use_index : bool, optional
+        Allow pip to use an external index
+        Default=True
+
     Raises
     ------
     BuildException - If package installation fails
     """
-    if not deps and not requirements:
+    if not deps and not requirements:  # pragma: no cover
         if verbose:
             print('No requirements specified to install')
         return
 
     if deps:
-        logger.debug(
-            'Installing dependencies from configuration deps: %s',
-            ' '.join(deps)
-        )
+        logger.debug('Installing dependencies from configuration deps: %s', ' '.join(deps))
         with tempfile.NamedTemporaryFile() as requirements_handle:
             requirements_handle.write('\n'.join(deps).encode())
             requirements_handle.flush()
@@ -112,20 +112,19 @@ def install_python_dependencies(
                 requirements_handle.name,
                 virtualenv=virtualenv,
                 upgrade=upgrade,
-                verbose=verbose
+                verbose=verbose,
+                pip_version=pip_version,
+                use_index=use_index
             )
     if requirements:
-        logger.debug(
-            'Installing dependencies from requirements file %r',
-            requirements
-        )
+        logger.debug('Installing dependencies from requirements file %r', requirements)
         install_requirements(
             requirements, virtualenv=virtualenv, upgrade=upgrade,
-            verbose=verbose
+            verbose=verbose, pip_version=pip_version, use_index=use_index
         )
 
 
-def install_rpm_dependencies(deps=None, fail_missing=True):
+def install_rpm_dependencies(deps=None, fail_missing=True):  # pragma: no cover
     """
     Install rpm dependencies from deploy.conf manifest
 
@@ -155,10 +154,7 @@ def install_rpm_dependencies(deps=None, fail_missing=True):
             subprocess.check_call(command)
 
 
-def build_deploy_virtualenv(
-        arguments=None, configuration=None, update_existing=True,
-        verbose=None
-):
+def build_deploy_virtualenv(arguments=None, configuration=None, update_existing=True, verbose=None):
     """
     Build and deploy a python virtualenv
 
@@ -222,8 +218,8 @@ def build_deploy_virtualenv(
         version = latest_package_version(arguments.virtualenvversion_package)
         if not version:
             raise NoPackageVersions(
-                'Unable to find any package versions on artifactory for '
-                'package %r' % arguments.virtualenvversion_package
+                'Unable to find any package versions on for package '
+                '%r' % arguments.virtualenvversion_package
             )
 
     if version:
@@ -282,6 +278,8 @@ def build_deploy_virtualenv(
         verbose=verbose
     )
 
+    deps = config['pip']['deps']
+    use_index = True
     if verbose:
         display_header('Installing python package dependencies')
     try:
@@ -290,7 +288,9 @@ def build_deploy_virtualenv(
             requirements=arguments.requirement,
             deps=config['pip']['deps'],
             upgrade=arguments.upgrade,
-            verbose=verbose
+            verbose=verbose,
+            pip_version=config['pip']['pip_version'],
+            use_index=use_index
         )
     except BuildException:
         logger.exception(
@@ -313,8 +313,117 @@ def build_deploy_virtualenv(
 
     if verbose:
         display_header('Fixing file ownership')
-    fix_file_ownership(
-        virtualenv, arguments.virtualenvuser, arguments.virtualenvgroup
-    )
+    fix_file_ownership(virtualenv, arguments.virtualenvuser, arguments.virtualenvgroup)
 
     return virtualenv
+
+
+def deployed_bin_files(venv):
+    """
+    Gets files that where deployed to the bin directory of the virtualenv.
+
+    Parameters
+    ----------
+    venv : str
+        Path the to virtualenv to do this bin_file links for
+
+    Returns
+    -------
+    dict
+        Key = filename
+        Value = sha256 hash
+    """
+    linked_files = []
+    confdir = os.path.join(venv, 'conf')
+    before_files_conf = os.path.join(confdir, 'binfiles_predeploy.json')
+    after_files_conf = os.path.join(confdir, 'binfiles_postdeploy.json')
+    if not os.path.exists(before_files_conf):
+        logger.debug('No binfiles_predeploy.json is present')
+        return linked_files
+    if not os.path.exists(after_files_conf):
+        logger.debug('No binfiles_postdeploy.json is present')
+        return linked_files
+
+    with open(before_files_conf) as handle:
+        before_files = json.load(handle)
+    with open(after_files_conf) as handle:
+        after_files = json.load(handle)
+
+    before = set(before_files.keys())
+    after = set(after_files.keys())
+
+    deployed_files = list(after.difference(before))
+    result = {}
+    for filename in deployed_files:
+        result[filename] = after_files[filename]
+    return result
+
+
+def link_deployed_bin_files(venv, destbin):  # pragma: no cover
+    """
+    Link the deployed files from the venv bin directory into the destbin
+    directory.
+
+    Writes a json list of the created links to conf/created_links.json in
+    the virtualenv.
+
+    Parameters
+    ----------
+    venv: str
+        Path to the python virtualenv
+
+    destbin: str
+        Destination directory when the links should be
+
+    Returns
+    -------
+    list
+        Full path to files linked
+    """
+    linked_files = []
+    venv_bin = os.path.join(venv, 'bin')
+    venv_conf = os.path.join(venv, 'conf')
+    linked_files_conf = os.path.join(venv_conf, 'created_links.json')
+    for filename in deployed_bin_files(venv):
+        source_filename = os.path.expanduser(os.path.join(venv_bin, filename))
+        dest_filename = os.path.expanduser(os.path.join(destbin, filename))
+        if os.path.exists(dest_filename):
+            logger.debug('Not overwriting existing file %r', dest_filename)
+            continue
+
+        # os.path.exists() returns False for broken symlinks so we need to check
+        # to see if the dest_filename is a symlink.
+        if os.path.islink(dest_filename):
+            logger.warning('Removing broken symlink %r', dest_filename)
+            os.unlink(dest_filename)
+        os.symlink(source_filename, dest_filename)
+        linked_files.append(dest_filename)
+    with open(linked_files_conf, 'w') as handle:
+        json.dump(linked_files, handle)
+
+
+def unlink_deployed_bin_files(venv):  # pragma: no cover
+    """
+    Undo/delete the symlinks created by link_deployed_bin_files()
+
+    Parameters
+    ----------
+    venv:str
+        Path to the root of the virtualenv
+    """
+    venv_conf = os.path.join(venv, 'conf')
+    linked_files_conf = os.path.join(venv_conf, 'created_links.json')
+    if not os.path.exists(linked_files_conf):
+        logger.debug('No symlinked files for this virtualenv')
+        return
+    with open(linked_files_conf, 'r') as handle:
+        for filename in json.load(handle):
+            if os.path.islink(filename):
+                logger.debug('Removing symlink %r', filename)
+                os.remove(filename)
+                continue
+            if os.path.exists(filename):
+                logger.debug('File %r is not a symlink, not removing', filename)
+                continue
+            logger.debug('File %r is missing, cannot remove symlink', filename)
+    os.remove(linked_files_conf)
