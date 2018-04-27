@@ -91,8 +91,8 @@ if __name__ == '__main__':
         author_email='dhubbard@oath.com',
         license='LICENSE.txt',
         packages=['invirtualenv', 'invirtualenv_plugins', 'invirtualenv_plugins.rpm_scripts'],
-        long_description='Short description of this project',
-        description='Short description of this project',
+        long_description=readme(),
+        description='A utility to generate installation packages for python packaged apps',
         entry_points={
             'console_scripts': ["invirtualenv=invirtualenv.cli:main"],
             'invirtualenv.plugin': [
