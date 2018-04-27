@@ -88,7 +88,7 @@ if __name__ == '__main__':
         name='invirtualenv',
         version=get_version(METADATA_FILENAME),
         author='Dwight Hubbard',
-        author_email='dhubbard',
+        author_email='dhubbard@oath.com',
         url='http=//github.com/yahoo/invirtualenv',
         license='LICENSE.txt',
         packages=['invirtualenv', 'invirtualenv_plugins', 'invirtualenv_plugins.rpm_scripts'],
