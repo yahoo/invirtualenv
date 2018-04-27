@@ -89,7 +89,6 @@ if __name__ == '__main__':
         version=get_version(METADATA_FILENAME),
         author='Dwight Hubbard',
         author_email='dhubbard@oath.com',
-        url='http=//github.com/yahoo/invirtualenv',
         license='LICENSE.txt',
         packages=['invirtualenv', 'invirtualenv_plugins', 'invirtualenv_plugins.rpm_scripts'],
         long_description='Short description of this project',
@@ -117,5 +116,6 @@ if __name__ == '__main__':
                 'docker_scripts/*'
             ]
         },
-        scripts= scripts()
+        scripts= scripts(),
+        url = 'http://github.com/yahoo/invirtualenv',
     )
