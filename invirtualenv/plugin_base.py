@@ -145,7 +145,7 @@ class InvirtualenvPlugin(object):
         hashes = {}
         with working_dir(wheeldir):
             # deps = self.config['pip'].get('deps', []) + ['invirtualenv']
-            deps = self.config['pip'].get('deps', []) + ['invirtualenv', 'configparser']
+            deps = self.config['pip'].get('deps', []) + ['invirtualenv>=1.4.0']
             cmd = self.pip_cmd + ['-q', 'wheel', '-w', '.'] + deps
             logger.debug('Running pip command %r to generate wheel packages', cmd)
             subprocess.check_call(cmd)
