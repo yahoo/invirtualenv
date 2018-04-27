@@ -75,7 +75,7 @@ class InvirtualenvRPM(InvirtualenvPlugin):
         if find_executable('rpmbuild'):
             return True
         logger.debug('The rpmbuild command is not present, disabling the rpm plugin')
-        return True
+        return False
 
     def run_package_command(self, package_hashes, wheel_dir='wheels'):
         # Make sure the configuration is sane
