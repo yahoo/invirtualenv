@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 DOCKERFILE_TEMPLATE = """FROM {{docker_container['base_image']|default('ubuntu:17.10')}}
 
 COPY docker_build.sh /tmp/docker_build.sh
+COPY deploy.conf /var/lib/invirtualenv/deploy.conf
 {% if docker_container['setenv'] %}# Environment Settings
 {% for setting, value in docker_container['setenv'].items() %}ENV {{setting}} {{value}}
 {% endfor %}{% endif %}{% if docker_container['files'] %}
@@ -92,8 +93,6 @@ class InvirtualenvDocker(InvirtualenvPlugin):
 
         logger.debug('Dockerfile')
         logger.debug(self.render_template_with_config())
-        logger.debug('Wheels')
-        logger.debug(os.listdir(wheel_dir))
         with open('Dockerfile', 'w') as dockerfile_handle:
             dockerfile_handle.write(self.render_template_with_config())
         container_tag = '{name}:{version}'.format(name=self.config['docker_container']['container_name'], version=self.config['global']['version'])

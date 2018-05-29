@@ -98,6 +98,7 @@ if __name__ == '__main__':
             'invirtualenv.plugin': [
                 'docker=invirtualenv_plugins.docker:InvirtualenvDocker',
                 'rpm=invirtualenv_plugins.rpm:InvirtualenvRPM',
+                'parsedconfig=invirtualenv_plugins.parsedconfig:InvirtualenvParsedConfig',
             ],
         },
         install_requires=[
