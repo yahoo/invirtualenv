@@ -13,7 +13,7 @@ from invirtualenv.plugin import create_package, package_formats
 
 if __name__ == '__main__':
     # Log debug messages
-    logging.basicConfig(level=logging.DEBUG)
+    # logging.basicConfig(level=logging.DEBUG)
 
     # Determine the package types we can create on the current system
     package_choices = package_formats()

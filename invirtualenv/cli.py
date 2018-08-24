@@ -33,8 +33,7 @@ def parse_cli_arguments():
 
     get_setting_parser = command_parser.add_parser('get_setting', help='Get a setting value from the configuration')
     get_setting_parser.add_argument('section', help="the configuration section to get the setting from")
-    get_setting_parser.add_argument('item', help='The item to get from the configuration'
-                                                 '')
+    get_setting_parser.add_argument('item', help='The item to get from the configuration')
     args = parser.parse_args()
     return args
 
@@ -128,7 +127,7 @@ def list_plugins_command(args):
 
 
 def main(test=False):
-    # logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
     args = parse_cli_arguments()
 
     rc = 0

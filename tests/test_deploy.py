@@ -114,7 +114,7 @@ class TestDeploy(unittest.TestCase):
         with open(config_file, 'w') as config_handle:
             config_handle.write(
                 "[global]\nname=%s\nvirtualenv_dir=%s\n"
-                "[pip]\ndeps=serviceping\n" % (
+                "[pip]\ndeps=serviceping<18.0.0\n" % (
                     venv_name,
                     self.venv_dir
                 )
@@ -147,7 +147,7 @@ class TestDeploy(unittest.TestCase):
         with open(config_file, 'w') as config_handle:
             config_handle.write(
                 "[global]\nname=%s\nvirtualenv_dir=%s\n"
-                "[pip]\ndeps=serviceping\n" % (
+                "[pip]\ndeps=serviceping<18.0.0\n" % (
                     venv_name,
                     self.venv_dir
                 )
@@ -175,7 +175,7 @@ class TestDeploy(unittest.TestCase):
         with open(config_file, 'w') as config_handle:
             config_handle.write(
                 "[global]\nname=%s\nvirtualenv_dir=%s\n"
-                "[pip]\ndeps=serviceping\n" % (
+                "[pip]\ndeps=serviceping<18.0.0\n" % (
                     venv_name,
                     self.venv_dir
                 )

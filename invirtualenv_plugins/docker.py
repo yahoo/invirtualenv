@@ -14,32 +14,92 @@ logger = logging.getLogger(__name__)
 
 DOCKERFILE_TEMPLATE = """FROM {{docker_container['base_image']|default('ubuntu:17.10')}}
 
+{% if docker_container['workdir_start'] %}WORKDIR {{docker_container['workdir_start']}}
+{% endif -%}
+{% if docker_container['add'] or docker_container['files'] or docker_container['copy'] %}# Files
+{% endif -%}
+{%- if docker_container['add'] %}{% for file_line in docker_container['add'] %}ADD {{file_line}}
+{% endfor %}{% endif -%}
+{%- if docker_container['files'] %}{% for file_line in docker_container['files'] %}COPY {{file_line}}
+{% endfor %}{% endif -%}
+{%- if docker_container['copy'] %}{% for file_line in docker_container['copy'] %}COPY {{file_line}}
+{% endfor %}{% endif -%}
+{%- if docker_container['add'] or docker_container['files'] or docker_container['copy'] %}
+{% endif -%}
+{% if docker_container['setenv'] or docker_container['env'] %}# Environment Settings
+{% endif -%}{% if docker_container['setenv'] %}{% for setting, value in docker_container['setenv'].items() %}ENV {{setting}}="{{value}}"
+{% endfor %}{% endif -%}
+{%- if docker_container['env'] %}{% for setting, value in docker_container['env'].items() %}ENV {{setting}}="{{value}}"
+{% endfor %}{% endif -%}
+{%- if docker_container['env'] or docker_container['setenv'] %}
+{% endif -%}
+{% if docker_container['expose'] %}# Ports
+{% for expose_port in docker_container['expose'] %}EXPOSE {{expose_port}}
+{% endfor %}{% endif -%}
+{%- if docker_container['expose'] %}
+{% endif -%}
+{% if docker_container['label'] %}# Labels
+{% for label in docker_container['label'] %}LABEL {{label}}
+{% endfor %}{% endif -%}
+{%- if docker_container['label'] %}
+{% endif -%}
+{%- if docker_container['volume'] %}# Volumes
+{% for volume in docker_container['volume'] %}VOLUME {{volume}}
+{% endfor %}{% endif -%}
+{%- if docker_container['volume'] %}
+{% endif -%}
+{%- if docker_container['run_before'] %}# Pre Invirtulenv Commands
+{% for runline in docker_container['run_before'] %}RUN {{runline}}
+{% endfor %}{% endif -%}
+{%- if docker_container['run_before'] %}
+{% endif -%}
+# Set up invirtualenv in the container
+ENV PATH="/var/lib/invirtualenv/installvenv/bin:${PATH}"
 COPY docker_build.sh /tmp/docker_build.sh
 COPY deploy.conf /var/lib/invirtualenv/deploy.conf
-{% if docker_container['setenv'] %}# Environment Settings
-{% for setting, value in docker_container['setenv'].items() %}ENV {{setting}} {{value}}
-{% endfor %}{% endif %}{% if docker_container['files'] %}
-# Files
-{% for file_line in docker_container['files'] %}COPY {{file_line}}
-{% endfor %}{% endif %}{% if docker_container['expose'] %}EXPOSE {{docker_container['expose']}}
-{% endif %}# Set up the container
-ENV PATH="/var/lib/invirtualenv/installvenv/bin:${PATH}"
 RUN chmod 755 /tmp/docker_build.sh
 RUN /tmp/docker_build.sh
 RUN rm /tmp/docker_build.sh
+
+{% if docker_container['run_after'] %}# Post Invirtualenv Commands
+{% for runline in docker_container['run_after'] %}RUN {{runline}}
+{% endfor %}{% endif -%}
+{%- if docker_container['run_after'] %}
+{% endif -%}
+
 {% if docker_container['entrypoint'] %}ENTRYPOINT {{docker_container['entrypoint']}}
-{% endif %}
+{% endif -%}
+{% if docker_container['cmd'] %}CMD {{docker_container['cmd']}}
+{% endif -%}
+{% if docker_container['healthcheck'] %}HEALTHCHECK {{docker_container['healthcheck']}}
+{% endif -%}
+{% if docker_container['stopsignal'] %}STOPSIGNAL {{docker_container['stopsignal']}}
+{% endif -%}
+{% if docker_container['user'] %}USER {{docker_container['user']}}
+{% endif -%}
 """
 
 DOCKER_CONFIG_DEFAULT = """[docker_container]
+add=
 base_image=ubuntu:17.10
+cmd=
 container_name=
+copy:
 entrypoint=
+env:
 expose:
 deb_deps:
 files:
+healthcheck=
+label:
 rpm_deps:
+run_before:
+run_after:
 setenv:
+stopsignal=
+user=
+volume:
+workdir_start=
 """
 
 
@@ -50,14 +110,26 @@ class InvirtualenvDocker(InvirtualenvPlugin):
     default_config_filename = 'Dockerfile.invirtualenv'
     config_types = {
         'docker_container': {
+            'add': list,
             'base_image': str,
             'container_name': str,
+            'cmd': str,
+            'copy': list,
             'deb_deps': list,
             'entrypoint': str,
-            'expose': csv_list,
+            'env': str_to_dict,
+            'expose': list,
             'files': list,
+            'healthcheck': str,
+            'label': list,
             'rpm_deps': list,
+            'run_before': list,
+            'run_after': list,
             'setenv': str_to_dict,
+            'stopsignal': str,
+            'user': str,
+            'volume': list,
+            'workdir_start': str,
         }
     }
 

@@ -107,6 +107,7 @@ if __name__ == '__main__':
             'requests',
             'six>=1.5',
             'virtualenv',
+            'wheel',
             'configparser',
         ],
         package_data= {
