@@ -31,6 +31,7 @@ class TestCli(unittest.TestCase):
             result = parse_cli_arguments()
 
     def test__main__list_plugins(self):
+        print(os.getcwd())
         sys.argv = ['invirtualenv', 'list_plugins']
         rc, output = main(test=True)
         self.assertEqual(rc, 0)
@@ -45,6 +46,15 @@ class TestCli(unittest.TestCase):
             rc, output = main(test=True)
             self.assertEqual(rc, 0)
             self.assertEqual(output, 'foo')
+
+    def test__get_setting_command_invalid_key(self):
+        with InTemporaryDirectory():
+            with open('deploy.conf', 'w') as write_handle:
+                write_handle.write('[global]\nname=foo\n')
+            sys.argv = ['invirtualenv', 'get_setting', 'global', 'namez']
+            rc, output = main(test=True)
+            self.assertEqual(rc, 1)
+            self.assertEqual(output, '')
 
 
 if __name__ == '__main__':
