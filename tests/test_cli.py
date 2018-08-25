@@ -61,7 +61,7 @@ class TestCli(unittest.TestCase):
             self.assertEqual(rc, 1)
             self.assertEqual(output, '')
 
-    def test__create_package_config__parsed_deploy_conf(self):
+    def test__create_package_config__parsed_deploy_conf__outfile(self):
         with InTemporaryDirectory():
             with open('deploy.conf', 'w') as write_handle:
                 write_handle.write('[global]\ntest={{TESTVAR}}\n')
@@ -72,6 +72,15 @@ class TestCli(unittest.TestCase):
             self.assertEqual(rc, 0)
             self.assertIn('deploy.conf.parsed', output)
 
+    def test__create_package_config__parsed_deploy_conf__nooutfile(self):
+        with InTemporaryDirectory():
+            with open('deploy.conf', 'w') as write_handle:
+                write_handle.write('[global]\ntest={{TESTVAR}}\n')
+            os.environ['TESTVAR'] = 'foo'
+            sys.argv = ['invirtualenv', 'create_package_config', 'parsed_deploy_conf']
+            rc, output = main(test=True)
+            self.assertTrue(os.path.exists('deploy.conf.parsed'))
+            self.assertEqual(rc, 0)
 
 
 if __name__ == '__main__':
