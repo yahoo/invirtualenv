@@ -65,7 +65,7 @@ def get_setting_command(args):
 
 
 def create_config_command(args):
-    if not package_formats():
+    if not package_formats():  # pragma: no cover
         raise PackageGenerationFailure('No supported package creation plugins found')
 
     outfile = args.outfile

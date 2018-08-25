@@ -23,20 +23,25 @@ class TestCli(unittest.TestCase):
             sys.argv = None
 
     def test__parse_cli_arguments__defaults(self):
-        sys.argv = ['invirtualenv']
-        if sys.version_info.major < 3:
-            with self.assertRaises(SystemExit):
+        with InTemporaryDirectory():
+            with open('deploy.conf', 'w') as write_handle:
+                write_handle.write('[global]\nname=foo\n')
+            sys.argv = ['invirtualenv']
+            if sys.version_info.major < 3:
+                with self.assertRaises(SystemExit):
+                    result = parse_cli_arguments()
+            else:
                 result = parse_cli_arguments()
-        else:
-            result = parse_cli_arguments()
 
     def test__main__list_plugins(self):
-        print(os.getcwd())
-        sys.argv = ['invirtualenv', 'list_plugins']
-        rc, output = main(test=True)
-        self.assertEqual(rc, 0)
-        for plugin in package_formats():
-            self.assertIn(plugin, output)
+        with InTemporaryDirectory():
+            with open('deploy.conf', 'w') as write_handle:
+                write_handle.write('[global]\nname=foo\n')
+            sys.argv = ['invirtualenv', 'list_plugins']
+            rc, output = main(test=True)
+            self.assertEqual(rc, 0)
+            for plugin in package_formats():
+                self.assertIn(plugin, output)
 
     def test__get_setting_command(self):
         with InTemporaryDirectory():
@@ -55,6 +60,18 @@ class TestCli(unittest.TestCase):
             rc, output = main(test=True)
             self.assertEqual(rc, 1)
             self.assertEqual(output, '')
+
+    def test__create_package_config__parsed_deploy_conf(self):
+        with InTemporaryDirectory():
+            with open('deploy.conf', 'w') as write_handle:
+                write_handle.write('[global]\ntest={{TESTVAR}}\n')
+            os.environ['TESTVAR'] = 'foo'
+            sys.argv = ['invirtualenv', 'create_package_config', 'parsed_deploy_conf', '-o', 'deploy.conf.parsed']
+            rc, output = main(test=True)
+            self.assertTrue(os.path.exists('deploy.conf.parsed'))
+            self.assertEqual(rc, 0)
+            self.assertIn('deploy.conf.parsed', output)
+
 
 
 if __name__ == '__main__':
