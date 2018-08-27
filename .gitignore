@@ -85,11 +85,6 @@ __pycache__/
 # Package metadata files
 package_metadata.json
 /deploy.conf
-
-# Begin: Added by set_up_screwdriver.py
-/.coveragerc
-/artifacts/test/coverage/cobertura.xml
-/artifacts/coverage/cobertura.xml
-/.python_screwdriver_local.json
-
-# End: Added by set_up_screwdriver.py
+/.cache
+/.pytest_cache
+/venv
