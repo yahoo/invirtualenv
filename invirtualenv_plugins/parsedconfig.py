@@ -21,8 +21,8 @@ class InvirtualenvParsedConfig(InvirtualenvPlugin):
             logger.debug('Read template %r', self.package_template)
 
     def run_package_command(self, package_hashes, wheel_dir='wheels'):
-        if not os.path.exists(self.config):
-            raise FileNotFoundError('The invirtualenv configuration file %r was not found' % self.config)
+        if not os.path.exists(self.config_file):
+            raise FileNotFoundError('The invirtualenv configuration file %r was not found' % self.config_file)
         generate_parsed_config_file('deploy.conf', self.default_config_filename)
         return self.default_config_filename
 
