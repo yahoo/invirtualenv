@@ -63,7 +63,7 @@ def strip_from_end(text, suffix):
 
 def package_versions(package, pypi_url=None):
     """
-    Get all versions of a package from artifactory
+    Get all versions of a package from pypi
 
     Parameters
     ----------
@@ -127,7 +127,7 @@ def latest_package_version(package):
     return versions[-1]
 
 
-def install_prereq_packages(test=False):
+def install_prereq_packages(test=False):  # pragma: no cover
     """
     Install packages required to build python
 

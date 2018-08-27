@@ -319,8 +319,7 @@ def install_requirements(
             if verbose:
                 print(output.decode())
         except subprocess.CalledProcessError as error:
-            if verbose:
-                print(error.output.decode())
+            print(error.output.decode())
             logger.exception('PIP install operation failed')
             raise BuildException('PIP install operation failed')
 
