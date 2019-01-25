@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 INVIRTUALENV_DIR="/var/lib/invirtualenv"
 INSTALLVENV="/var/lib/invirtualenv/installvenv"
@@ -28,7 +29,8 @@ function install_invirtualenv {
     venv_pip="${INSTALLVENV}/bin/pip"
 
     ${venv_pip} install -U setuptools
-    ${venv_pip} install -U pip wheel virtualenv
+    ${venv_pip} install -U wheel virtualenv
+    ${venv_pip} install "pip<19.0"
     ${venv_pip} install -U invirtualenv
 }
 
