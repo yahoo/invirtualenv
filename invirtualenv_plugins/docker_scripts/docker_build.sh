@@ -39,9 +39,9 @@ function init_debian {
 function init_rpm {
     echo "Configuring container for rpm packaging"
     VENV_COMMAND="virtualenv"
-    yum upgrade -y
+    # yum upgrade -y
+    yum groupinstall -y 'development tools'
     set +e
-    yum groupinstall 'development tools'
     yum install -y python3-devel python3 python3-virtualenv
     RC="$?"
     set -e
