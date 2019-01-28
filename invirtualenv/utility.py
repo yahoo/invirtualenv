@@ -106,7 +106,13 @@ def which(command):
 
     Raises
     ------
+    CommandNotFound:
+        Command was not found
     """
+    bin_dir = os.path.dirname(sys.executable)
+    bin_exe = os.path.join(bin_dir, command)
+    if os.path.exists(bin_exe) and os.access(bin_exe, os.X_OK):
+        return bin_exe
     result = find_executable(command)
     if not result:  # pragma: no cover
         raise CommandNotFound('Command %r was not found in the path' % command)
