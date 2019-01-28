@@ -41,6 +41,7 @@ function init_rpm {
     VENV_COMMAND="virtualenv"
     yum upgrade -y
     set +e
+    yum groupinstall 'development tools'
     yum install -y python3-devel python3 python3-virtualenv
     RC="$?"
     set -e
