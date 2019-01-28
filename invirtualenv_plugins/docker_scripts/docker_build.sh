@@ -11,6 +11,12 @@ function init_directories {
     mkdir -p "${INVIRTUALENV_DIR}"
 }
 
+function init_alpine {
+    echo "Configuring container for alpine packaging"
+    apk add python3 python3-dev coreutils zip gcc libxml2 libxslt musl-dev libxslt-dev
+    VENV_COMMAND="python3 -m venv"
+}
+
 function init_debian {
     echo "Configuring container for debian packaging"
     DEBIAN_FRONTEND="noninteractive"
@@ -44,6 +50,7 @@ function init_rpm {
 }
 
 function install_invirtualenv {
+    echo "Bootstrapping the invirtualenv package"
     $VENV_COMMAND "${INSTALLVENV}"
     venv_pip="${INSTALLVENV}/bin/pip"
 
@@ -54,6 +61,7 @@ function install_invirtualenv {
 }
 
 function deploy {
+    echo "Deploying application virtualenv"
     cwd="`pwd`"
     cd "${INVIRTUALENV_DIR}"
     cat deploy.conf
@@ -71,6 +79,10 @@ fi
 
 if [ -e "/usr/bin/yum" ]; then
     init_rpm
+fi
+
+if [ -e "/sbin/apk" ]; then
+    init_alpine
 fi
 
 install_invirtualenv
