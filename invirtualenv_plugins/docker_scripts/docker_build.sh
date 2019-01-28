@@ -32,8 +32,15 @@ function init_debian {
 
 function init_rpm {
     echo "Configuring container for rpm packaging"
+    VENV_COMMAND="virtualenv"
     yum upgrade -y
-    yum install -y python-devel python-virtualenv
+    set +e
+    yum install -y python3-devel python3 python3-virtualenv
+    RC=$?"
+    set -e
+    if [ "$RC" != "0" ]; then
+        yum install -y python-devel python-virtualenv
+    fi
 }
 
 function install_invirtualenv {
