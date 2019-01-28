@@ -54,7 +54,7 @@ function install_invirtualenv {
 }
 
 function deploy {
-    cwd=`pwd`
+    cwd="`pwd`"
     cd "${INVIRTUALENV_DIR}"
     cat deploy.conf
     ${INSTALLVENV}/bin/deploy_virtualenv
