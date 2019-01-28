@@ -111,7 +111,7 @@ def which(command):
     """
     bin_dir = os.path.dirname(sys.executable)
     bin_exe = os.path.join(bin_dir, command)
-    if os.path.exists(bin_exe) and os.access(bin_exe, os.X_OK):
+    if os.path.exists(bin_exe) and os.access(bin_exe, os.X_OK):  # pragma: no cover
         return bin_exe
     result = find_executable(command)
     if not result:  # pragma: no cover
