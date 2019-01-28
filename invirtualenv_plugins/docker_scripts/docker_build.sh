@@ -13,7 +13,7 @@ function init_directories {
 
 function init_alpine {
     echo "Configuring container for alpine packaging"
-    apk add python3 python3-dev coreutils zip gcc libxml2 libxslt musl-dev libxslt-dev
+    apk add python3 python3-dev coreutils zip gcc libxml2 libxslt musl-dev libxslt-dev linux-headers make
     VENV_COMMAND="python3 -m venv"
 }
 
