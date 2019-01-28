@@ -19,11 +19,11 @@ function init_debian {
     apt-get upgrade -y
     
     set +e
-    apt-get install -y python3-dev python3-venv
+    apt-get install -y python3-dev python3-venv build-essential
     RC="$?"
     set -e
     if [ "$RC" != "0" ]; then
-        apt-get install -y python-dev python-pip python-virtualenv
+        apt-get install -y python-dev python-pip python-virtualenv build-essential
         VENV_COMMAND="virtualenv"
     else
         VENV_COMMAND="python3 -m venv"
