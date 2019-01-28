@@ -36,7 +36,7 @@ function init_rpm {
     yum upgrade -y
     set +e
     yum install -y python3-devel python3 python3-virtualenv
-    RC=$?"
+    RC="$?"
     set -e
     if [ "$RC" != "0" ]; then
         yum install -y python-devel python-virtualenv
