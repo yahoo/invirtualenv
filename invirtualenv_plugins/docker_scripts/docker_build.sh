@@ -3,6 +3,8 @@ set -e
 
 INVIRTUALENV_DIR="/var/lib/invirtualenv"
 INSTALLVENV="/var/lib/invirtualenv/installvenv"
+VENV_COMMAND="virtualenv"
+PYTHON="python3"
 
 function init_directories {
     mkdir -p "/var/lib/virtualenvs"
@@ -15,7 +17,17 @@ function init_debian {
     export DEBIAN_FRONTEND
     apt-get update
     apt-get upgrade -y
-    apt-get install -y python-dev python-pip python-virtualenv
+    
+    set +e
+    apt-get install -y python3-dev python3-venv
+    RC="$?"
+    set -e
+    if [ "$RC" != "0" ]; then
+        apt-get install -y python-dev python-pip python-virtualenv
+        VENV_COMMAND="virtualenv"
+    else
+        VENV_COMMAND="python3 -m venv"
+    fi
 }
 
 function init_rpm {
@@ -25,7 +37,7 @@ function init_rpm {
 }
 
 function install_invirtualenv {
-    virtualenv "${INSTALLVENV}"
+    $VENV_COMMAND "${INSTALLVENV}"
     venv_pip="${INSTALLVENV}/bin/pip"
 
     ${venv_pip} install -U setuptools
