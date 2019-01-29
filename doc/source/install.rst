@@ -24,3 +24,4 @@ the rpm package support in the :ref:`create_package` script.::
 
     rpm-build
 
+The Docker container build requires the :ref:`docker` command has been installed and working.
