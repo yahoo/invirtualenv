@@ -6,6 +6,10 @@ INSTALLVENV="/var/lib/invirtualenv/installvenv"
 VENV_COMMAND="virtualenv"
 PYTHON="python3"
 
+if [ "$LANG" = "" ]; then
+    export LANG="en_US.UTF-8"
+fi
+
 function init_directories {
     mkdir -p "/var/lib/virtualenvs"
     mkdir -p "${INVIRTUALENV_DIR}"
