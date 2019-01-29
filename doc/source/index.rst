@@ -14,5 +14,7 @@ Contents:
    scripts.rst
    configuration.rst
    invirtualenv.rst
+   invirtualenv_plugins.rst
+
 
 
