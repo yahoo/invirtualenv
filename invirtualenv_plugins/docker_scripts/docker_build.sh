@@ -28,10 +28,7 @@ function init_debian {
     apt-get update
     apt-get upgrade -y
     
-    set +e
-    apt-get install -y python3-dev python3-venv build-essential
-    RC="$?"
-    set -e
+    apt-get install -y python3-dev python3-venv build-essential || RC="$?"
     if [ "$RC" != "0" ]; then
         apt-get install -y python-dev python-pip python-virtualenv build-essential
         VENV_COMMAND="virtualenv"
@@ -44,13 +41,12 @@ function init_rpm {
     echo "Configuring container for rpm packaging"
     VENV_COMMAND="virtualenv"
     # yum upgrade -y
-    yum groupinstall -y 'development tools'
-    set +e
-    yum install -y python3-devel python3 python3-virtualenv
+    yum groupinstall -y 'development tools' || true
+    yum install -y python3-devel python3 python3-virtualenv || RC="$?"
+    yum clean all
     RC="$?"
-    set -e
     if [ "$RC" != "0" ]; then
-        yum install -y python-devel python-virtualenv
+        yum install -y python-devel python-virtualenv && yum clean all
     fi
 }
 
@@ -91,6 +87,10 @@ if [ -e "/sbin/apk" ]; then
 fi
 
 install_invirtualenv
+
 deploy
 
+if [ -e "/usr/bin/yum" ]; then
+    yum clean all
+fi
 exit 0
