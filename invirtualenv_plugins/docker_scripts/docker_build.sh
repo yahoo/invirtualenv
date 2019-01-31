@@ -41,10 +41,10 @@ function init_rpm {
     echo "Configuring container for rpm packaging"
     VENV_COMMAND="virtualenv"
     # yum upgrade -y
+    yum clean all
     yum groupinstall -y 'development tools' || true
     yum install -y python3-devel python3 python3-virtualenv || RC="$?"
     yum clean all
-    RC="$?"
     if [ "$RC" != "0" ]; then
         yum install -y python-devel python-virtualenv && yum clean all
     fi
