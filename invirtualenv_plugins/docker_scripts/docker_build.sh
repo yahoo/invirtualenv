@@ -72,7 +72,7 @@ function init_rpm {
 function install_invirtualenv {
     echo "Bootstrapping the invirtualenv package"
     $VENV_COMMAND "${INSTALLVENV}"
-    source "${INSTALLVENV)/bin/activate
+    source "${INSTALLVENV)/bin/activate"
     venv_pip="${INSTALLVENV}/bin/pip"
 
     ${venv_pip} install -U setuptools
