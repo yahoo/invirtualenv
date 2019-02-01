@@ -42,23 +42,44 @@ function init_rpm {
     VENV_COMMAND="virtualenv"
     # yum upgrade -y
     yum clean all
-    yum groupinstall -y 'development tools' || true
-    yum install -y python3-devel python3 python3-virtualenv || RC="$?"
+    yum install -y apr apr-util autoconf automake \
+        bison byacc \
+        cscope ctags \
+        diffstat doxygen \
+        flex \
+        gcc gcc-gfortran \
+        indent intltool \
+        libtool \
+        patchutils \
+        rcs \
+        subversion swig \
+        python3-devel python3 python3-virtualenv || RC="$?"
     yum clean all
     if [ "$RC" != "0" ]; then
-        yum install -y python-devel python-virtualenv && yum clean all
+        echo "Unable to bootstrap python3, switching to python2"
+        yum install -y apr apr-util autoconf automake \
+            bison byacc \
+            cscope ctags \
+            diffstat doxygen \
+            flex \
+            gcc gcc-gfortran \
+            indent intltool \
+            libtool \
+            python-devel python-virtualenv && yum clean all
     fi
 }
 
 function install_invirtualenv {
     echo "Bootstrapping the invirtualenv package"
     $VENV_COMMAND "${INSTALLVENV}"
+    source "${INSTALLVENV)/bin/activate
     venv_pip="${INSTALLVENV}/bin/pip"
 
     ${venv_pip} install -U setuptools
     ${venv_pip} install -U wheel virtualenv
     ${venv_pip} install "pip<19.0"
     ${venv_pip} install -U invirtualenv
+    deactivate || true
 }
 
 function deploy {
