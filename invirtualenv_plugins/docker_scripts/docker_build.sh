@@ -10,19 +10,26 @@ if [ "$LANG" = "" ]; then
     export LANG="en_US.UTF-8"
 fi
 
+function header {
+    echo "========================================================================"
+    echo "$1"
+    echo "========================================================================"
+    
+}
+
 function init_directories {
     mkdir -p "/var/lib/virtualenvs"
     mkdir -p "${INVIRTUALENV_DIR}"
 }
 
 function init_alpine {
-    echo "Configuring container for alpine packaging"
+    header "Configuring container for alpine packaging"
     apk add python3 python3-dev coreutils zip gcc libxml2 libxslt musl-dev libxslt-dev linux-headers make
     VENV_COMMAND="python3 -m venv"
 }
 
 function init_debian {
-    echo "Configuring container for debian packaging"
+    header "Configuring container for debian packaging"
     DEBIAN_FRONTEND="noninteractive"
     export DEBIAN_FRONTEND
     apt-get update
@@ -38,7 +45,7 @@ function init_debian {
 }
 
 function init_rpm {
-    echo "Configuring container for rpm packaging"
+    header "Configuring container for rpm packaging"
     VENV_COMMAND="virtualenv"
     # yum upgrade -y
     yum clean all
@@ -70,7 +77,7 @@ function init_rpm {
 }
 
 function install_invirtualenv {
-    echo "Bootstrapping the invirtualenv package"
+    header "Bootstrapping the invirtualenv package"
     $VENV_COMMAND "${INSTALLVENV}"
     source "${INSTALLVENV}/bin/activate"
     venv_pip="${INSTALLVENV}/bin/pip"
@@ -83,7 +90,7 @@ function install_invirtualenv {
 }
 
 function deploy {
-    echo "Deploying application virtualenv"
+    header "Deploying application virtualenv"
     cwd="`pwd`"
     cd "${INVIRTUALENV_DIR}"
     cat deploy.conf
