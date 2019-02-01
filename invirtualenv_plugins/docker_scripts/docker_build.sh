@@ -122,6 +122,7 @@ install_invirtualenv
 deploy
 
 if [ -e "/usr/bin/yum" ]; then
+    header "Cleaning up yum metadata"
     yum clean all
 fi
 exit 0
