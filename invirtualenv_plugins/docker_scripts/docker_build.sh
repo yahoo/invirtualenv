@@ -72,6 +72,9 @@ function init_rpm {
             gcc gcc-gfortran \
             indent intltool \
             libtool \
+            patchutils \
+            rcs \
+            subversion swig \
             python-devel python-virtualenv && yum clean all
     fi
 }
