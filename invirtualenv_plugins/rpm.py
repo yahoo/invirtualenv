@@ -101,7 +101,7 @@ class InvirtualenvRPM(InvirtualenvPlugin):
         os.system('ls -lR')
         command = [find_executable('rpmbuild'), '-ba', 'package.spec']
         logger.debug('Running command %r', ' '.join(command))
-        output = subprocess.check_output(command)
+        output = subprocess.check_output(command, env={'LANG': 'C'})
         output = output.decode(errors='ignore')
         packages = []
         for line in output.split('\n'):
