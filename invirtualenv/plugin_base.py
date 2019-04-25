@@ -70,6 +70,10 @@ class InvirtualenvPlugin(object):
         python_executable = find_executable(basepython)
         if not python_executable:
             python_executable = sys.executable
+
+        # Check to see if deploy.conf has basepip
+        if self.config['global'].get('basepip', None):
+            return [python_executable, self.config['global'].get('basepip')]
         bin_dir = os.path.dirname(python_executable)
         pip_command = os.path.join(bin_dir, 'pip')
         return [python_executable, pip_command]
