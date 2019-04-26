@@ -12,9 +12,6 @@ script:
 matrix:
   fast_finish: true
 
-after_success:
-  coveralls
-
 notifications:
   irc:
     channels: "irc.freenode.org#invirtualenv"
