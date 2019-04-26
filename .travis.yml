@@ -1,20 +1,13 @@
 language: python
 python:
-  - 2.7
-  - 3.5
   - 3.6
-  - 3.7
 
 install:
   - pip install --upgrade setuptools
-  - pip install "pip<19.0"
-  - pip install  .
-  - pip install  --upgrade pycodestyle pylint pytest pytest-cov coveralls
+  - pip install tox
 
 script:
-  - pycodestyle invirtualenv
-  - pylint invirtualenv
-  - pytest --cov=invirtualenv --cov-report=xml:cobertura.xml --cov-report term-missing tests/
+  - tox -r
 
 matrix:
   fast_finish: true
