@@ -71,8 +71,7 @@ class InvirtualenvPlugin(object):
         if not python_executable:
             python_executable = sys.executable
         bin_dir = os.path.dirname(python_executable)
-        pip_command = os.path.join(bin_dir, 'pip')
-        return [python_executable, pip_command]
+        return [python_executable, '-m', 'pip']
 
     def supported_formats(self):
         """

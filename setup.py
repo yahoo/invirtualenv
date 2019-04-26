@@ -85,30 +85,8 @@ def get_version(version_file):
 if __name__ == '__main__':
     version = '1.0.0'
     setup(
-        name='invirtualenv',
         version=get_version(METADATA_FILENAME),
-        author='Dwight Hubbard',
-        author_email='dhubbard@oath.com',
         license='LICENSE.txt',
-        packages=['invirtualenv', 'invirtualenv_plugins', 'invirtualenv_plugins.rpm_scripts'],
-        long_description=readme(),
-        description='A utility to generate installation packages for python packaged apps',
-        entry_points={
-            'console_scripts': ["invirtualenv=invirtualenv.cli:main"],
-            'invirtualenv.plugin': [
-                'docker=invirtualenv_plugins.docker:InvirtualenvDocker',
-                'rpm=invirtualenv_plugins.rpm:InvirtualenvRPM',
-                'parsedconfig=invirtualenv_plugins.parsedconfig:InvirtualenvParsedConfig',
-            ],
-        },
-        install_requires=[
-            'jinja2',
-            'requests',
-            'six>=1.5',
-            'virtualenv',
-            'wheel',
-            'configparser',
-        ],
         package_data= {
             'invirtualenv': [
                 'package_metadata.json',
@@ -118,5 +96,4 @@ if __name__ == '__main__':
             ]
         },
         scripts= scripts(),
-        url = 'http://github.com/yahoo/invirtualenv',
     )
