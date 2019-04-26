@@ -12,6 +12,9 @@ script:
 matrix:
   fast_finish: true
 
+after_success:
+  .tox/py36/bin/coveralls
+
 notifications:
   irc:
     channels: "irc.freenode.org#invirtualenv"
