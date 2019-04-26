@@ -8,7 +8,7 @@ import json
 from setuptools import setup
 
 # Default version number
-BASE_VERSION = '18.8.0'
+BASE_VERSION = '19.1.1'
 METADATA_FILENAME = 'invirtualenv/package_metadata.json'
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 METADATA_FILE = os.path.join(BASEPATH, METADATA_FILENAME)
@@ -103,7 +103,6 @@ if __name__ == '__main__':
         },
         install_requires=[
             'jinja2',
-            'pyinstaller',
             'requests',
             'six>=1.5',
             'virtualenv',

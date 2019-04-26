@@ -1,5 +1,5 @@
-Python module invirtualenv
-********************************
+Python invirtualenv module code documentation
+*********************************************
 
 Python module support functions for the invirtualenv scripts
 

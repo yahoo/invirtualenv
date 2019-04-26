@@ -14,7 +14,7 @@ basepython = python
 
 [pip]
 deps:
-    invirtualenv
+    confset
 """
 
 
@@ -26,3 +26,10 @@ class TestPluginBase(unittest.TestCase):
             plugin = InvirtualenvParsedConfig(config_file='deploy.conf')
             self.assertEqual(plugin.config_file, 'deploy.conf')
             self.assertEqual(plugin.config['global']['name'], 'test')
+
+    def test__config_file__create(self):
+        with InTemporaryDirectory():
+            with open('deploy.conf', 'w') as config_handle:
+                config_handle.write(deploy_conf)
+            plugin = InvirtualenvParsedConfig(config_file='deploy.conf')
+            plugin.create_package('parsed_deploy_conf')

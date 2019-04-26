@@ -2,7 +2,37 @@
 Scripts
 *******
 
-Python module support functions for the invirtualenv scripts
+Invirtualenv command line utilities.
+
+invirtualenv
+============
+
+The `invirtualenv` command line tool is used to perform invirtualenv operations.  This script is meant to replace the
+`create_package` and `deploy_virtualenv` scripts that are still provided for backwards compatibility.
+
+invirtualenv usage
+##################
+
+The invirtualenv command takes a number of subcommands used to specify the invirtualenv function to perform::
+
+    usage: invirtualenv [-h] [--deploy_conf DEPLOY_CONF]
+                        {list_plugins,create_package_config,create_package,get_setting}
+                        ...
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      --deploy_conf DEPLOY_CONF
+                            Deploy configuration filename or url (default:
+                            deploy.conf)
+
+    command:
+      {list_plugins,create_package_config,create_package,get_setting}
+        list_plugins        List the installed invirtualenv plugins
+        create_package_config
+                            Generate the packaging configuration file
+        create_package      Generate a package from a deployment configuration
+        get_setting         Get a setting value from the configuration
+
 
 .. _deploy_virtualenv:
 

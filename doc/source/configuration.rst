@@ -7,12 +7,16 @@ functionality and usage.
 
 .. _deploy.conf:
 
-deploy.conf
-===========
+deploy.conf - Deployment configuration file
+===========================================
 
 The :ref:`deploy.conf` file allows for setting all configuration arguments in
 a single file.  This allows running the script without any other command line
 arguments.
+
+The same file can be used for deployment and generation of deployment packages
+in multiple packaging formats.  Current supported deployment packaging formats
+are: rpm and docker containers.
 
 The :ref:`deploy.conf` file is a Python :py:mod:`ConfigParse` format
 configuration file.  This file consists of sections which are deliminated by
@@ -29,11 +33,12 @@ BUILD_NUMBER environment variable provided by the CI pipeline for example.
 
 .. _[global]:
 
-deploy.conf global section settings
-###################################
+global settings
+###############
 
 The :ref:`[global]` section of the :ref:`deploy.conf` defines a number of
-settings.  All of which are optional.
+settings.  All of which are optional.  These settings act as the default
+values if they are not set in other sections.
 
 .. _[global]name:
 
@@ -58,7 +63,7 @@ install_manifest
 
 The :ref:`[global]install_manifest` setting specifies a comma seperated list
 of manifests to install.  If this setting is not set all package manifests
-will be installed.
+(lists of packages) that will be installed.
 
 ** NOTE: It is generally not a good idea to mix multiple types of platform
 package manifests.  Such as using both rpm and tar **
@@ -143,11 +148,14 @@ This setting requires the following:
 
 .. _[pip]:
 
-deploy.conf pip section settings
-################################
+pip package manifest
+####################
 
 This configuration section allows defining settings related to the installation
-of python packages that are installed using the `pip` tool.
+of python packages that are installed using the `pip` tool.   As part of a pip
+package manifest.
+
+This section is used to define the python packages to install.
 
 .. _[pip]deps:
 
@@ -159,18 +167,21 @@ the deps is the same as the format of a `pip` requirements file.
 
 .. _[rpm]:
 
-deploy.conf rpm section settings
-################################
+rpm package manifest
+####################
 
-This configuration section allows defining settings related to the installation
+The [rpm] configuration section allows defining package manifests (list of packages)
 of rpm packages installed using the yum tool.
 
-A few thing to note:
+These is section defines a package manifest of rpm packages to install prior to
+installing the python packages.
 
-    * rpm package installations are not atomic and once installed some package
-      dependencies can block uninstall or upgrade of certain packages.  As a
-      result a rpm install failure can leave the system in a different package
-      state than when the script run started.
+Note:
+
+    rpm package installations are not atomic and once installed some package
+    dependencies can block uninstall or upgrade of certain packages.  As a
+    result a rpm install failure can leave the system in a different package
+    state than when the script run started.
 
 .. _[rpm]deps:
 
@@ -179,6 +190,115 @@ deps
 
 This section is a list of rpm packages to install.
 
+docker_container packaging (creation)
+#####################################
+
+The [docker_container] section contains the settings used to create a docker
+container containing the python application in a virtualenv.  This sectiion allows
+for adding settings used to create the docker container.
+
+The docker plugin will generate basic sane container based on the defaults and values
+in the global section of the configuration.
+
+This section can be used to set docker specific settings such as commands to use for
+healthchecks of the created docker container.
+
+
+add
+~~~
+
+base_image
+~~~~~~~~~~
+
+default=ubuntu:17.10
+
+container_name
+~~~~~~~~~~~~~~
+
+copy
+~~~~
+
+deb_deps
+~~~~~~~~
+
+A manifest of debian packages to install into the container prior to creating the
+python virtualenv.
+
+entrypoint
+~~~~~~~~~~
+
+env
+~~~
+
+expose
+~~~~~~
+
+files
+~~~~~
+
+healthcheck
+~~~~~~~~~~~
+
+This is the healthcheck script to run in the container.
+
+label
+~~~~~
+
+A list of labels to be applied to the container.
+
+rpm_deps
+~~~~~~~~
+
+A manifest of rpm packages to install into the container prior to creating the python
+virtualenv.
+
+run_before
+~~~~~~~~~~
+
+A list of shell commands to run before creating the python virtualenv inside the container.
+
+run_after
+~~~~~~~~~
+
+A list of shell commands to run after creating the python virtualenv inside the container.
+
+setenv
+~~~~~~
+
+Environment variables to set when creating the container.
+
+stopsignal
+~~~~~~~~~~
+
+user
+~~~~
+
+volume
+~~~~~~
+
+A list of volume mappings to use with the container.
+
+
+rpm packaging
+#############
+The [rpm_package] section defines settings related to the creation of rpm packages.
+The settings in this section will overide the default values from the global settings
+for rpm package generation only.
+
+.. _[rpm_package]deps:
+
+deps
+~~~~
+
+This is a manifest (list of packages) to be listed as dependencies of the created
+rpm package.
+
+
+Note::
+
+    This should include the packages that contain the python interpreter
+    and virtualenv commands to use to deploy the virtualenv when the created package
+    is installed.
 
 Example deploy.conf
 ###################

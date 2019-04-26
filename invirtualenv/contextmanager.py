@@ -42,7 +42,7 @@ def revert_file(filename):
     try:
         yield
     finally:
-        if original_data:
+        if original_data:  # pragma: no cover
             with open(filename, 'wb') as file_handle:
                 file_handle.write(original_data)
 
