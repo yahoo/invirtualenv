@@ -4,14 +4,17 @@ python:
 
 install:
   - pip install --upgrade setuptools
-  - pip install tox
+  - pip install tox codecov
 
 script:
-  - tox -r
+  - tox
 
 matrix:
   fast_finish: true
 
+after_success:
+  codecov
+  
 notifications:
   irc:
     channels: "irc.freenode.org#invirtualenv"
