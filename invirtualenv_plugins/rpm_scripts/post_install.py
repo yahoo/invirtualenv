@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
 import logging
 import os
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     try:
         venv_directory = build_deploy_virtualenv(update_existing=True)
         update_config(venv_directory)
-    except:
+    except Exception:
         print('Unable to create the python virtualenv', file=sys.stderr)
         logger.exception('The virtualenv create failed, removing venv_directory')
         if venv_directory and os.path.exists(venv_directory):
@@ -62,7 +62,7 @@ if __name__ == "__main__":
                 link_deployed_bin_files(venv_directory, '/usr/bin')
             except ImportError:
                 print('WARNING: The installed version of invirtualenv does not support linking bin files')
-    except:
+    except Exception:
         logger.exception('An error occurred linking bin files into %r', os.path.dirname(sys.executable))
 
     print('Created virtualenv %r' % venv_directory)
