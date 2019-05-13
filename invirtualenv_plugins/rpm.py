@@ -1,6 +1,5 @@
 import os
 import logging
-import shutil
 import subprocess
 import pkgutil
 from invirtualenv.plugin_base import InvirtualenvPlugin
@@ -17,9 +16,14 @@ Release: {{rpm_package['release']|default('1')}}
 License: {{rpm_package['license']|default('Closed Source')}}
 Group: {{rpm_package['group']|default('Development')}}
 {% if rpm_package['deps'] %}Requires: {% for package in rpm_package['deps'] %}{{package}}{{ ", " if not loop.last }}{% endfor %}{% endif %}
-Packager: {{rpm_package['packager']|default('Oath')}}
+Packager: {{rpm_package['packager']|default('VerizonMedia')}}
 URL: {{global['url']|default('https://github.com/yahoo/invirtualenv')}}
 AutoReqProv: no
+BuildArch: noarch
+# If basepython is specified/set. Make it as RPM requirement.
+%if {{global['basepython']}}
+Requires: {{global['basepython']}}
+%fi
 
 %description
 {{rpm_package['description']|default('No description')}}
@@ -36,7 +40,15 @@ chmod 755 %{buildroot}/usr/share/%{name}-%{version}/package_scripts/pre_uninstal
 
 %post
 export PATH=$PATH:/opt/python/bin:/usr/local/bin
-python3 -m venv /usr/share/%{name}-%{version}/invirtualenv_deployer
+virtualenv_path=`which virtualenv ||:`
+if [ -z $virtualenv_path ]
+then
+    # NOTE(saga): Virtualenv binary not found. Try and use python3's virtualenv
+    # module. However it doesn't support specifying custom python_exe path (-p)
+    python3 -m venv /usr/share/%{name}-%{version}/invirtualenv_deployer
+else
+    $virtualenv_path -p {{global['basepython']}} /usr/share/%{name}-%{version}/invirtualenv_deployer
+fi
 /usr/share/%{name}-%{version}/invirtualenv_deployer/bin/pip install -q --no-index --find-links=/usr/share/%{name}-%{version}/wheels invirtualenv configparser
 cd /usr/share/%{name}-%{version}
 #/usr/share/%{name}-%{version}/invirtualenv_deployer/bin/deploy_virtualenv
