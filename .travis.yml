@@ -7,7 +7,7 @@ install:
   - pip install tox
 
 script:
-  - tox -r
+  - tox
 
 matrix:
   fast_finish: true
