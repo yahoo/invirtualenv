@@ -13,7 +13,7 @@ matrix:
   fast_finish: true
 
 after_success:
-  .tox/py36/bin/coveralls
+  codecov
 
 notifications:
   irc:

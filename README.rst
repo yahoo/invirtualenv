@@ -1,6 +1,9 @@
 .. image:: https://travis-ci.org/yahoo/invirtualenv.svg?branch=master
     :target: https://travis-ci.org/yahoo/invirtualenv
 
+.. image:: https://codecov.io/gh/yahoo/invirtualenv/branch/master/graph/badge.svg
+  :target: https://codecov.io/gh/yahoo/invirtualenv
+
 .. image:: https://readthedocs.org/projects/invirtualenv/badge/?version=latest
     :target: https://invirtualenv.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
