@@ -20,10 +20,7 @@ Packager: {{rpm_package['packager']|default('VerizonMedia')}}
 URL: {{global['url']|default('https://github.com/yahoo/invirtualenv')}}
 AutoReqProv: no
 BuildArch: noarch
-# If basepython is specified/set. Make it as RPM requirement.
-%if {{global['basepython']}}
 Requires(post): {{global['basepython']}}
-%fi
 Requires(post): /usr/bin/which
 
 %description
