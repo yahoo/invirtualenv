@@ -22,8 +22,9 @@ AutoReqProv: no
 BuildArch: noarch
 # If basepython is specified/set. Make it as RPM requirement.
 %if {{global['basepython']}}
-Requires: {{global['basepython']}}
+Requires(post): {{global['basepython']}}
 %fi
+Requires(post): /usr/bin/which
 
 %description
 {{rpm_package['description']|default('No description')}}
