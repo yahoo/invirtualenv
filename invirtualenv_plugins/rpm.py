@@ -21,7 +21,6 @@ URL: {{global['url']|default('https://github.com/yahoo/invirtualenv')}}
 AutoReqProv: no
 BuildArch: noarch
 Requires(post): {{global['basepython']}}
-Requires(post): /usr/bin/which
 Requires(post): python-virtualenv
 
 %description
