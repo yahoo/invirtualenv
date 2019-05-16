@@ -231,9 +231,7 @@ def build_deploy_virtualenv(arguments=None, configuration=None, update_existing=
             )
 
     if version:
-        # NOTE(saga) RPMs look like <name>-<version>.rpm. Just follow the same
-        # pattern everywhere.
-        arguments.name += '-' + version
+        arguments.name += '_' + version
 
     logger.debug('Using version: ' + version)
 
