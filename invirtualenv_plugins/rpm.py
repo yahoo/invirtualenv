@@ -21,7 +21,7 @@ URL: {{global['url']|default('https://github.com/yahoo/invirtualenv')}}
 AutoReqProv: no
 BuildArch: noarch
 Requires(post): {{global['basepython']}}
-Requires(post): /usr/bin/which
+Requires(post): python-virtualenv
 
 %description
 {{rpm_package['description']|default('No description')}}
@@ -38,18 +38,9 @@ chmod 755 %{buildroot}/usr/share/%{name}-%{version}/package_scripts/pre_uninstal
 
 %post
 export PATH=$PATH:/opt/python/bin:/usr/local/bin
-virtualenv_path=`which virtualenv ||:`
-if [ -z $virtualenv_path ]
-then
-    # NOTE(saga): Virtualenv binary not found. Try and use python3's virtualenv
-    # module. However it doesn't support specifying custom python_exe path (-p)
-    python3 -m venv /usr/share/%{name}-%{version}/invirtualenv_deployer
-else
-    $virtualenv_path -p {{global['basepython']}} /usr/share/%{name}-%{version}/invirtualenv_deployer
-fi
+virtualenv -p {{global['basepython']}} /usr/share/%{name}-%{version}/invirtualenv_deployer
 /usr/share/%{name}-%{version}/invirtualenv_deployer/bin/pip install -q --no-index --find-links=/usr/share/%{name}-%{version}/wheels invirtualenv configparser
 cd /usr/share/%{name}-%{version}
-#/usr/share/%{name}-%{version}/invirtualenv_deployer/bin/deploy_virtualenv
 /usr/share/%{name}-%{version}/invirtualenv_deployer/bin/python /usr/share/%{name}-%{version}/package_scripts/post_install.py
 
 %preun
