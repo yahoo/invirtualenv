@@ -66,7 +66,9 @@ def fix_file_ownership(virtualenv, user, group):
         )
 
 
-def install_python_dependencies(virtualenv, deps=None, requirements=None, upgrade=False, verbose=False, pip_version=None, use_index=True):
+def install_python_dependencies(virtualenv, deps=None, requirements=None,
+                                upgrade=False, verbose=False, pip_version=None,
+                                use_index=True, use_local_wheels=False):
     """
     Install python dependencies from a requirements file or
     deploy.conf manifest
@@ -93,6 +95,10 @@ def install_python_dependencies(virtualenv, deps=None, requirements=None, upgrad
         Allow pip to use an external index
         Default=True
 
+    use_local_wheels: bool, optional
+        Install from local wheels directory instead of pypi
+        Default=False
+
     Raises
     ------
     BuildException - If package installation fails
@@ -114,13 +120,15 @@ def install_python_dependencies(virtualenv, deps=None, requirements=None, upgrad
                 upgrade=upgrade,
                 verbose=verbose,
                 pip_version=pip_version,
-                use_index=use_index
+                use_index=use_index,
+                use_local_wheels=use_local_wheels
             )
     if requirements:
         logger.debug('Installing dependencies from requirements file %r', requirements)
         install_requirements(
             requirements, virtualenv=virtualenv, upgrade=upgrade,
-            verbose=verbose, pip_version=pip_version, use_index=use_index
+            verbose=verbose, pip_version=pip_version, use_index=use_index,
+            use_local_wheels=use_local_wheels
         )
 
 
@@ -268,6 +276,9 @@ def build_deploy_virtualenv(arguments=None, configuration=None, update_existing=
                 fail_missing=config['rpm']['fail_missing_yum']
             )
 
+    # By default don't use local wheels.
+    use_local_wheels = config['global'].get('use_local_wheels', False)
+
     if verbose:
         display_header('Building virtualenv')
     virtualenv = build_virtualenv(
@@ -286,11 +297,12 @@ def build_deploy_virtualenv(arguments=None, configuration=None, update_existing=
         install_python_dependencies(
             virtualenv=virtualenv,
             requirements=arguments.requirement,
-            deps=config['pip']['deps'],
+            deps=deps,
             upgrade=arguments.upgrade,
             verbose=verbose,
             pip_version=config['pip']['pip_version'],
-            use_index=use_index
+            use_index=use_index,
+            use_local_wheels=use_local_wheels
         )
     except BuildException:
         logger.exception(

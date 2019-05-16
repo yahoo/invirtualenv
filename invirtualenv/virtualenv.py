@@ -23,7 +23,7 @@ except ImportError:
     BUILTIN_VENV = False
 
 from .exceptions import BuildException
-from .utility import change_uid_gid, chown_recursive, which
+from .utility import chown_recursive, which
 
 
 logger = logging.getLogger(__name__)  # pylint: disable=C0103
@@ -181,12 +181,6 @@ def build_virtualenv(
 
     virtualenv_dir = os.path.join(directory, name)
 
-    user_uid = None
-    user_gid = None
-    if user:
-        user_uid = getpwnam(user).pw_uid
-        user_gid = getpwnam(user).pw_gid
-
     if False and not python_interpreter and BUILTIN_VENV and \
             not hasattr(sys, 'frozen'):
         logger.debug(
@@ -207,7 +201,6 @@ def build_virtualenv(
             output = subprocess.check_output(
                 command,
                 stderr=subprocess.STDOUT,
-                # preexec_fn=change_uid_gid(user_uid=user_uid),
             )
             if verbose:
                 print(output.decode().strip())
@@ -240,7 +233,7 @@ def build_virtualenv(
 
 def install_requirements(
         requirements, virtualenv, user=None, upgrade=False, verbose=False,
-        pip_version=None, use_index=True
+        pip_version=None, use_index=True, use_local_wheels=False
 ):
     """
     Open one or more requirements files and run pip -r to install them
@@ -268,6 +261,10 @@ def install_requirements(
     use_index : bool, optional
         Allow pip to use an external index
         Default=True
+
+    use_local_wheels: bool, optional
+        Install wheels from local directory
+        Default=False
     """
     logger.info(
         'Installing requirements from requirements file: %r '
@@ -288,6 +285,15 @@ def install_requirements(
         extra_pip_args.append('-U')
     if not verbose and root_logger.level > logging.DEBUG:
         extra_pip_args.append('-q')
+    if not use_index:
+        extra_pip_args.append('--no-index')
+    if use_local_wheels:
+        # Get the wheels_dir path from virtualenv path. Instead of downloading
+        # packages from pypi we will be installing wheels from local dir.
+        package_data_dir_name = os.path.basename(virtualenv)
+        package_data_dir = os.path.join("/usr/share/", package_data_dir_name)
+        wheels_dir = os.path.join(package_data_dir, "wheels")
+        extra_pip_args += ['--find-links', wheels_dir]
 
     user_uid = None
     user_gid = None
