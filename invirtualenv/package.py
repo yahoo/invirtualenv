@@ -188,16 +188,13 @@ def install_prereq_packages(test=False):  # pragma: no cover
 
     if redhat_release.startswith('6'):
         display_header('Fixing the user .gitconfig to work with git < 1.8')
-        gitconfig = os.path.exists(os.path.expanduser('~/.gitconfig'))
+        gitconfig = os.path.expanduser('~/.gitconfig')
         if os.path.exists(gitconfig):
             old_git_config = []
             with open(gitconfig) as file_handle:
                 old_git_config = file_handle.read().split('\n')
 
-            try:
-                with open(gitconfig, 'w') as file_handle:
-                    for line in old_git_config:
-                        if 'default=simple' not in line.replace(' ', ''):
-                            file_handle.write(line + '\n')
-            except OSError:
-                pass
+            with open(gitconfig, 'w') as file_handle:
+                for line in old_git_config:
+                    if 'default=simple' not in line.replace(' ', ''):
+                        file_handle.write(line + '\n')
