@@ -1,0 +1,31 @@
+version: 4
+shared:
+  environment:
+    PACKAGE_DIRECTORY: invirtualenv
+
+jobs:
+  validate_test:
+    template: python/validate_unittest
+    requires: [~commit, ~pr]
+
+  validate_lint:
+    template: python/validate_lint
+    requires: [~commit, ~pr]
+
+  validate_codestyle:
+    template: python/validate_codestyle
+    requires: [~commit, ~pr]
+
+  validate_security:
+    template: python/validate_security
+    requires: [~commit, ~pr]
+
+  generate_version:
+    template: python/generate_version
+    requires: [~commit]
+
+  package_python:
+    template: python/package_python
+    # environment:
+    #   PUBLISH: True
+    requires: [validate_test, validate_lint, validate_codestyle, validate_security, generate_version]
