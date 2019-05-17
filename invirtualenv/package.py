@@ -194,7 +194,10 @@ def install_prereq_packages(test=False):  # pragma: no cover
             with open(gitconfig) as file_handle:
                 old_git_config = file_handle.read().split('\n')
 
-            with open(gitconfig, 'w') as file_handle:
-                for line in old_git_config:
-                    if 'default=simple' not in line.replace(' ', ''):
-                        file_handle.write(line + '\n')
+            try:
+                with open(gitconfig, 'w') as file_handle:
+                    for line in old_git_config:
+                        if 'default=simple' not in line.replace(' ', ''):
+                            file_handle.write(line + '\n')
+            except OSError:
+                pass
