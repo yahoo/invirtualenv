@@ -39,7 +39,7 @@ chmod 755 %{buildroot}/usr/share/%{name}-%{version}/package_scripts/pre_uninstal
 %post
 export PATH=$PATH:/opt/python/bin:/usr/local/bin
 virtualenv -p {{global['basepython']}} /usr/share/%{name}-%{version}/invirtualenv_deployer
-/usr/share/%{name}-%{version}/invirtualenv_deployer/bin/pip install -q --no-index --find-links=/usr/share/%{name}-%{version}/wheels invirtualenv configparser
+/usr/share/%{name}-%{version}/invirtualenv_deployer/bin/pip install -q --find-links=/usr/share/%{name}-%{version}/wheels invirtualenv configparser
 cd /usr/share/%{name}-%{version}
 /usr/share/%{name}-%{version}/invirtualenv_deployer/bin/python /usr/share/%{name}-%{version}/package_scripts/post_install.py
 
