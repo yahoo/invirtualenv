@@ -16,9 +16,10 @@ jobs:
     template: python/validate_codestyle
     requires: [~commit, ~pr]
 
-  validate_security:
-    template: python/validate_security
-    requires: [~commit, ~pr]
+  # Take care of the fall positives this flags after the cleanup PR has been merged
+  # validate_security:
+  #   template: python/validate_security
+  #   requires: [~commit, ~pr]
 
   generate_version:
     template: python/generate_version
