@@ -1,0 +1,33 @@
+version: 4
+shared:
+  environment:
+    PACKAGE_DIRECTORY: invirtualenv
+
+jobs:
+  validate_test:
+    template: python/validate_unittest
+    requires: [~commit, ~pr]
+
+  validate_lint:
+    template: python/validate_lint
+    requires: [~commit, ~pr]
+
+  validate_codestyle:
+    template: python/validate_codestyle
+    requires: [~commit, ~pr]
+
+  # Take care of the fall positives this flags after the cleanup PR has been merged
+  # validate_security:
+  #   template: python/validate_security
+  #   requires: [~commit, ~pr]
+
+  generate_version:
+    template: python/generate_version
+    requires: [~commit]
+
+  publish_test_pypi:
+    template: python/package_python
+    environment:
+      PUBLISH: True
+      TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
+    requires: [validate_test, validate_lint, validate_codestyle, validate_security, generate_version]
