@@ -25,8 +25,9 @@ jobs:
     template: python/generate_version
     requires: [~commit]
 
-  package_python:
+  publish_test_pypi:
     template: python/package_python
-    # environment:
-    #   PUBLISH: True
+    environment:
+      PUBLISH: True
+      TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
     requires: [validate_test, validate_lint, validate_codestyle, validate_security, generate_version]
