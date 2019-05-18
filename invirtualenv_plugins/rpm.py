@@ -16,7 +16,9 @@ Release: {{rpm_package['release']|default('1')}}
 License: {{rpm_package['license']|default('Closed Source')}}
 Group: {{rpm_package['group']|default('Development')}}
 {% if rpm_package['deps'] %}
-Requires: {% for package in rpm_package['deps'] -%}{{ package }}{%- endfor %}
+{% for package in rpm_package['deps'] -%}
+Requires: {{ package }}
+{%- endfor %}
 {% endif %}
 Packager: {{rpm_package['packager']|default('VerizonMedia')}}
 URL: {{global['url']|default('https://github.com/yahoo/invirtualenv')}}
