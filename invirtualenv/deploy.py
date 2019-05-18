@@ -268,7 +268,7 @@ def build_deploy_virtualenv(arguments=None, configuration=None, update_existing=
 
     # Install rpm packages if specified
     if 'rpm' in config['global']['install_manifest']:
-        if config['rpm']['deps']:
+        if config['rpm']['deps'] and config['rpm'].get('yum_install_deps'):
             if verbose:
                 display_header('Installing rpm dependencies')
             install_rpm_dependencies(

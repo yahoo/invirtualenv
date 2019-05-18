@@ -15,7 +15,9 @@ Version: {{global['version']|default('0.0.0')}}
 Release: {{rpm_package['release']|default('1')}}
 License: {{rpm_package['license']|default('Closed Source')}}
 Group: {{rpm_package['group']|default('Development')}}
-{% if rpm_package['deps'] %}Requires: {% for package in rpm_package['deps'] %}{{package}}{{ ", " if not loop.last }}{% endfor %}{% endif %}
+{% if rpm_package['deps'] %}
+Requires: {% for package in rpm_package['deps'] -%}{{ package }}{%- endfor %}
+{% endif %}
 Packager: {{rpm_package['packager']|default('VerizonMedia')}}
 URL: {{global['url']|default('https://github.com/yahoo/invirtualenv')}}
 AutoReqProv: no
@@ -57,6 +59,7 @@ rm -rf /usr/share/%{name}-%{version}
 """
 
 RPM_CONFIG_DEFAULT = """[rpm_package]
+yum_install_deps: True
 deps:
 """
 
@@ -67,6 +70,7 @@ class InvirtualenvRPM(InvirtualenvPlugin):
     config_default = RPM_CONFIG_DEFAULT
     config_types = {
         'rpm_package': {
+            'yum_install_deps': bool,
             'deps': list
         }
     }
