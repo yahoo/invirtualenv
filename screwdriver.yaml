@@ -36,7 +36,7 @@ jobs:
 
     -   install_tox: |
             $BASE_PYTHON -m venv /tmp/functional_test
-            /tmp/functional_test/bin/pip install pytest
+            /tmp/functional_test/bin/pip install pytest wheel jinja2 requests six>=1.5 virtualenv
             /tmp/functional_test/bin/pip install --index-url=https://test.pypi.org/simple $PACKAGE_NAME==$PACKAGE_VERSION
     -   validate_code: |
             cd /tmp
