@@ -31,3 +31,26 @@ jobs:
       PUBLISH: True
       TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
     requires: [validate_test, validate_lint, validate_codestyle, validate_security, generate_version]
+
+  validate_test_install:
+    # Install the published package in a virtualenv and run the tests on it.
+    template: python/validate_unittest
+    steps:
+      - install_tox: |
+        PACKAGE_NAME="`$BASE_PYTHON setup.py --name`"
+        $BASE_PYTHON -m venv /tmp/functional_test
+        /tmp/functional_test/bin/pip install pytest
+        /tmp/functional_test/bin/pip install --index-url=https://test.pypi.org/simple
+      - validate_code: |
+        cd /tmp
+        /tmp/functional_test/bin/pytest $SD_SOURCE_DIR/tests/  
+        cd $SD_SOURCE_DIR
+      - codecov: echo "No coverage for function tests"
+    requires: [publish_test_pypi]
+    
+    publish_prod_pypi:
+      template: python/package_python
+      environment:
+        PUBLISH: True
+      requires: [validate_test, validate_lint, validate_codestyle, validate_security, generate_version]  
+  
