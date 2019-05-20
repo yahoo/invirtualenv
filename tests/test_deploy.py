@@ -25,6 +25,7 @@ from invirtualenv.contextmanager import TemporaryDirectory
 class TestDeploy(unittest.TestCase):
     orig_sysargv = None
     maxDiff = None
+    verbose = True
 
     def setUp(self):
         self.orig_sysargv = sys.argv
@@ -79,7 +80,8 @@ class TestDeploy(unittest.TestCase):
             )
         deploy.build_deploy_virtualenv(
             configuration=[config_file],
-            verbose=False)
+            verbose=self.verbose
+        )
         self.assertTrue(os.path.isdir(venv_path))
 
     def test__build_deploy_virtualenv__no_pips(self):
@@ -96,7 +98,8 @@ class TestDeploy(unittest.TestCase):
             )
         deploy.build_deploy_virtualenv(
             configuration=[config_file],
-            verbose=False)
+            verbose=self.verbose
+        )
         self.assertTrue(os.path.isdir(venv_path))
         confdir = os.path.join(venv_path, 'conf')
         self.assertTrue(os.path.isdir(confdir))
@@ -119,7 +122,7 @@ class TestDeploy(unittest.TestCase):
                     self.venv_dir
                 )
             )
-        deploy.build_deploy_virtualenv(configuration=[config_file], verbose=False)
+        deploy.build_deploy_virtualenv(configuration=[config_file], verbose=self.verbose)
         self.assertTrue(os.path.isdir(venv_path))
         confdir = os.path.join(venv_path, 'conf')
         predeploy_file = os.path.join(confdir, 'binfiles_predeploy.json')
@@ -154,7 +157,8 @@ class TestDeploy(unittest.TestCase):
             )
         deploy.build_deploy_virtualenv(
             configuration=[config_file],
-            verbose=False)
+            verbose=self.verbose
+        )
         with TemporaryDirectory() as bindir:
             deploy.link_deployed_bin_files(venv_path, bindir)
             self.assertIn('serviceping', os.listdir(bindir))
@@ -180,7 +184,7 @@ class TestDeploy(unittest.TestCase):
                     self.venv_dir
                 )
             )
-        deploy.build_deploy_virtualenv(configuration=[config_file], verbose=False)
+        deploy.build_deploy_virtualenv(configuration=[config_file], verbose=self.verbose)
         output = subprocess.check_output([venv_pip, 'list', '--format=columns'])
         for line in output.decode().split(os.linesep):
             try:
