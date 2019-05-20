@@ -37,9 +37,9 @@ jobs:
     template: python/validate_unittest
     steps:
       - install_tox: |
+        $BASE_PYTHON -m venv /tmp/functional_test
         PACKAGE_NAME="`$BASE_PYTHON setup.py --name`"
         PACKAGE_VERSION="`meta get package.version`"
-        $BASE_PYTHON -m venv /tmp/functional_test
         /tmp/functional_test/bin/pip install pytest
         /tmp/functional_test/bin/pip install --index-url=https://test.pypi.org/simple invirtualenv==$PACKAGE_VERSION
       - validate_code: |
