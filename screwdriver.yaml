@@ -49,9 +49,9 @@ jobs:
       - codecov: echo "No coverage for function tests"
     requires: [publish_test_pypi]
     
-    publish_prod_pypi:
-      template: python/package_python
-      environment:
-        PUBLISH: True
-      requires: [validate_test_install]  
+  publish_prod_pypi:
+    template: python/package_python
+    environment:
+      PUBLISH: True
+    requires: [validate_test_install]  
   
