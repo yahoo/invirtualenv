@@ -95,3 +95,8 @@ package_metadata.json
 /.cache
 /.pytest_cache
 /venv
+.coveragerc
+.idea/
+.python_screwdriver_local.json
+cobertura.xml
+test.dockerfile
