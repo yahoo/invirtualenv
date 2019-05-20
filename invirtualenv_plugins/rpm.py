@@ -27,31 +27,31 @@ Requires(post): python-virtualenv
 {{rpm_package['description']|default('No description')}}
 
 %install
-mkdir -p %{buildroot}/usr/share/%{name}-%{version}/
-mkdir -p %{buildroot}/usr/share/%{name}-%{version}/package_scripts/
-cp -r {{rpm_package['cwd']}}/wheels %{buildroot}/usr/share/%{name}-%{version}
-cp {{rpm_package['cwd']}}/deploy.conf %{buildroot}/usr/share/%{name}-%{version}/deploy.conf
-cp {{rpm_package['cwd']}}/post_install.py %{buildroot}/usr/share/%{name}-%{version}/package_scripts/post_install.py
-cp {{rpm_package['cwd']}}/pre_uninstall.py %{buildroot}/usr/share/%{name}-%{version}/package_scripts/pre_uninstall.py
-chmod 755 %{buildroot}/usr/share/%{name}-%{version}/package_scripts/post_install.py
-chmod 755 %{buildroot}/usr/share/%{name}-%{version}/package_scripts/pre_uninstall.py
+mkdir -p %{buildroot}/usr/share/%{name}_%{version}/
+mkdir -p %{buildroot}/usr/share/%{name}_%{version}/package_scripts/
+cp -r {{rpm_package['cwd']}}/wheels %{buildroot}/usr/share/%{name}_%{version}
+cp {{rpm_package['cwd']}}/deploy.conf %{buildroot}/usr/share/%{name}_%{version}/deploy.conf
+cp {{rpm_package['cwd']}}/post_install.py %{buildroot}/usr/share/%{name}_%{version}/package_scripts/post_install.py
+cp {{rpm_package['cwd']}}/pre_uninstall.py %{buildroot}/usr/share/%{name}_%{version}/package_scripts/pre_uninstall.py
+chmod 755 %{buildroot}/usr/share/%{name}_%{version}/package_scripts/post_install.py
+chmod 755 %{buildroot}/usr/share/%{name}_%{version}/package_scripts/pre_uninstall.py
 
 %post
 export PATH=$PATH:/opt/python/bin:/usr/local/bin
-virtualenv -p {{global['basepython']}} /usr/share/%{name}-%{version}/invirtualenv_deployer
-/usr/share/%{name}-%{version}/invirtualenv_deployer/bin/pip install -q --find-links=/usr/share/%{name}-%{version}/wheels invirtualenv configparser
-cd /usr/share/%{name}-%{version}
-/usr/share/%{name}-%{version}/invirtualenv_deployer/bin/python /usr/share/%{name}-%{version}/package_scripts/post_install.py
+virtualenv -p {{global['basepython']}} /usr/share/%{name}_%{version}/invirtualenv_deployer
+/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/pip install -q --find-links=/usr/share/%{name}_%{version}/wheels invirtualenv configparser
+cd /usr/share/%{name}_%{version}
+/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/python /usr/share/%{name}_%{version}/package_scripts/post_install.py
 
 %preun
-/usr/share/%{name}-%{version}/invirtualenv_deployer/bin/python /usr/share/%{name}-%{version}/package_scripts/pre_uninstall.py
+/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/python /usr/share/%{name}_%{version}/package_scripts/pre_uninstall.py
 
 %postun
-rm -rf /usr/share/%{name}-%{version}
+rm -rf /usr/share/%{name}_%{version}
 
 %files
 %defattr(0755, root, root)
-/usr/share/%{name}-%{version}/*
+/usr/share/%{name}_%{version}/*
 {% if rpm_package['files'] %}
 {% endif %}
 """

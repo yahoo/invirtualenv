@@ -16,11 +16,6 @@ jobs:
     template: python/validate_codestyle
     requires: [~commit, ~pr]
 
-  # Take care of the fall positives this flags after the cleanup PR has been merged
-  # validate_security:
-  #   template: python/validate_security
-  #   requires: [~commit, ~pr]
-
   generate_version:
     template: python/generate_version
     requires: [~commit]
@@ -30,4 +25,28 @@ jobs:
     environment:
       PUBLISH: True
       TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
-    requires: [validate_test, validate_lint, validate_codestyle, validate_security, generate_version]
+    requires: [validate_test, validate_lint, validate_codestyle, generate_version]
+
+  verify_test_package:
+    template: python/validate_unittest
+    steps:
+    -   postsetup_environment: |
+            PACKAGE_NAME="`$BASE_PYTHON setup.py --name`"
+            PACKAGE_VERSION="`meta get package.version`"
+
+    -   install_tox: |
+            $BASE_PYTHON -m venv /tmp/functional_test
+            /tmp/functional_test/bin/pip install pytest wheel jinja2 requests six>=1.5 virtualenv
+            /tmp/functional_test/bin/pip install --index-url=https://test.pypi.org/simple $PACKAGE_NAME==$PACKAGE_VERSION
+    -   validate_code: |
+            cd /tmp
+            /tmp/functional_test/bin/pytest $SD_SOURCE_DIR/tests/  
+            cd "$SD_SOURCE_DIR"
+    -   codecov: echo "Functional tests do not log coverage"
+    requires: [publish_test_pypi]
+    
+  publish_prod_pypi:
+    template: python/package_python
+    environment:
+      PUBLISH: True
+    requires: [verify_test_package]  
