@@ -71,4 +71,4 @@ jobs:
     template: python/package_python
     environment:
       PUBLISH: True
-    requires: [publish_test_pypi]
+    requires: [verify_test_package]
