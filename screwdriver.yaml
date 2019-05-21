@@ -46,18 +46,18 @@ jobs:
             rc = 1
             for count in range(10):
                 try:
-                    output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+                    output = subprocess.check_output(command, stderr=subprocess.STDOUT).decode(errors='ignore')
                     sys.stdout.write(output)
                     rc = 0
                     break
                 except subprocess.CalledProcessError as error:
-                    output = error.stdout
+                    output = error.stdout.decode(errors='ignore')
                     rc = error.returncode
                     time.sleep(5)
                 sys.stdout.write(output)
                 print('Timeout waiting for package to show up the packaging repository', flush=True)
             if rc == 0:
-                subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--index-url=https://test.pypi.org/simple', f'{package_name}=={package_version}'])
+                subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--index-url=https://test.pypi.org/simple', f'{package_name}=={package_version}']).decode(errors='ignore')
             sys.exit(rc)
             EOF
     -   validate_code: |
