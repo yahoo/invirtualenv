@@ -48,16 +48,18 @@ jobs:
                 try:
                     output = subprocess.check_output(command, stderr=subprocess.STDOUT)
                     sys.stdout.write(output)
-                    sys.exit(0)
+                    rc = 0
+                    break
                 except subprocess.CalledProcessError as error:
                     output = error.stdout
                     rc = error.returncode
                     time.sleep(5)
                 sys.stdout.write(output)
-            print('Timeout waiting for package to show up the packaging repository', flush=True)
+                print('Timeout waiting for package to show up the packaging repository', flush=True)
+            if rc == 0:
+                subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--index-url=https://test.pypi.org/simple', f'{package_name}=={package_version}'])
             sys.exit(rc)
             EOF
-            /tmp/functional_test/bin/pip install --index-url=https://test.pypi.org/simple $PACKAGE_NAME==$PACKAGE_VERSION
     -   validate_code: |
             cd /tmp
             /tmp/functional_test/bin/pytest $SD_SOURCE_DIR/tests/  
