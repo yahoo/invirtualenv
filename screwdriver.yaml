@@ -57,7 +57,7 @@ jobs:
                 sys.stdout.write(output)
                 print('Timeout waiting for package to show up the packaging repository', flush=True)
             if rc == 0:
-                subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--index-url=https://test.pypi.org/simple', f'{package_name}=={package_version}']).decode(errors='ignore')
+                subprocess.check_call([sys.executable, '-m', 'pip', 'install', '--index-url=https://test.pypi.org/simple', f'{package_name}=={package_version}'])
             sys.exit(rc)
             EOF
     -   validate_code: |
