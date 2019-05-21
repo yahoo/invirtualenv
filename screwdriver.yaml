@@ -71,4 +71,7 @@ jobs:
     template: python/package_python
     environment:
       PUBLISH: True
+    secrets:
+        - PYPI_USER
+        - PYPI_PASSWORD
     requires: [verify_test_package]
