@@ -30,10 +30,6 @@ jobs:
   verify_test_package:
     template: python/validate_unittest
     steps:
-    -   postsetup_environment: |
-            PACKAGE_NAME="`$BASE_PYTHON setup.py --name`"
-            PACKAGE_VERSION="`meta get package.version`"
-
     -   preinstall_tox: |
             $BASE_PYTHON -m venv /tmp/functional_test
     
@@ -44,18 +40,21 @@ jobs:
             import subprocess
             import sys
             import time
-            command = [sys.executable, '-m', 'pip', 'install', '--index-url=https://test.pypi.org/simple', f'{os.environ["PACKAGE_NAME"]}=={os.environ["PACKAGE_VERSION"]}']
+            package_name = subprocess.check_output([sys.executable, 'setup.py', '--name']).decode(errors='ignore')
+            package_version = subprocess.check_output(['meta', 'get', 'package.version']).decode(errors='ignore')
+            command = [sys.executable, '-m', 'pip', 'install', '--index-url=https://test.pypi.org/simple', f'{package_name}=={package_version}']
             rc = 1
             for count in range(10):
                 try:
-                    output = subprocess.check_output(command)
-                    rc = 0
-                    break
+                    output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+                    sys.stdout.write(output)
+                    sys.exit(0)
                 except subprocess.CalledProcessError as error:
                     output = error.stdout
                     rc = error.returncode
                     time.sleep(5)
                 sys.stdout.write(output)
+            print('Timeout waiting for package to show up the packaging repository', flush=True)
             sys.exit(rc)
             EOF
             /tmp/functional_test/bin/pip install --index-url=https://test.pypi.org/simple $PACKAGE_NAME==$PACKAGE_VERSION
