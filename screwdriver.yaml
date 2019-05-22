@@ -63,7 +63,7 @@ jobs:
             yum install -y rpm-build redhat-rpm-config
             $BASE_PYTHON -m pip install -i https://test.pypi.org/simple invirtualenv==`meta get package.version`
         - package_code: |
-            invirtualenv create_package rpm
+            $BINDIR/invirtualenv create_package rpm
         - install_package: rpm -ivh invirtualenv*.rpm
      requires: [verify_test_package]
   
