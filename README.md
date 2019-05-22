@@ -11,7 +11,7 @@ Utilities for deploying applications written in Python.
 
 ## Background
 
-This project is an extensible utility that create deployment artifacts for Python applications in multiple formats from a single configuration file.  This simplifies the creation of CI Pipelines that support multiple installation methods.
+This project is an extensible utility that creates deployment artifacts for Python applications in multiple formats from a single configuration file.  This simplifies the creation of CI Pipelines that support multiple installation methods.
 
 ## Contribute
 
