@@ -32,9 +32,20 @@ jobs:
     environment:
         PYPI_INDEX_URL: https://test.pypi.org/simple
     requires: [publish_test_pypi]
-    
+  
+  package_rpm:
+     template: python/package_python
+     steps:
+        - install_utility: |
+            yum install -y rpm-build redhat-rpm-config
+            $BASE_PYTHON -m pip install -i https://test.pypi.org/simple invirtualenv==`meta get package.version`
+        - package_code: |
+            invirtualenv create_package rpm
+        - install_package: rpm -ivh invirtualenv*.rpm
+     requires: [verify_test_package]
+  
   publish_prod_pypi:
     template: python/package_python
     environment:
       PUBLISH: True
-    requires: [verify_test_package]
+    requires: [package_rpm]
