@@ -34,8 +34,8 @@ jobs:
     requires: [publish_test_pypi]
   
   package_rpm:
-     template: python/package_python
-     steps:
+    template: python/package_python
+    steps:
         - postmotd: |
             cat > deploy.conf <<EOF
             [global]
@@ -61,11 +61,11 @@ jobs:
             EOF
         - install_utility: |
             yum install -y rpm-build redhat-rpm-config
-            $BASE_PYTHON -m pip install -i https://test.pypi.org/simple invirtualenv==`meta get package.version`
-        - package_code: |
-            $BINDIR/invirtualenv create_package rpm
+            $BASE_PYTHON -m venv /tmp/testvenv
+            /tmp/testvenv/bin/pip install .
+        - package_code: /tmp/testvenv/bin/invirtualenv create_package rpm
         - install_package: rpm -ivh invirtualenv*.rpm
-     requires: [verify_test_package]
+    requires: [publish_test_pypi]
   
   publish_prod_pypi:
     template: python/package_python
