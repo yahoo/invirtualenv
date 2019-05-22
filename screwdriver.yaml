@@ -34,8 +34,8 @@ jobs:
     requires: [publish_test_pypi]
   
   package_rpm:
-     template: python/package_python
-     steps:
+    template: python/package_python
+    steps:
         - postmotd: |
             cat > deploy.conf <<EOF
             [global]
