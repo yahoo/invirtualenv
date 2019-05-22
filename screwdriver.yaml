@@ -62,8 +62,7 @@ jobs:
         - install_utility: |
             yum install -y rpm-build redhat-rpm-config
             $BASE_PYTHON -m pip install .
-        - package_code: |
-            `dirname $BASE_PYTHON`/invirtualenv create_package rpm
+        - package_code: `dirname $BASE_PYTHON`/invirtualenv create_package rpm
         - install_package: rpm -ivh invirtualenv*.rpm
     requires: [publish_test_pypi]
   
