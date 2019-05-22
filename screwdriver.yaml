@@ -44,7 +44,7 @@ jobs:
             version = {{PACKAGE_VERSION|default('0.0.0')}}
             link_bin_files = True
             virtualenv_dir = /var/lib/virtualenvs
-            basepython=python3.6
+            basepython=python
 
             [pip]
             deps:
