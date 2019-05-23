@@ -44,7 +44,7 @@ jobs:
             version = {{PACKAGE_VERSION|default('0.0.0')}}
             link_bin_files = True
             virtualenv_dir = /var/lib/virtualenvs
-            basepython=python3.6
+            basepython=python
 
             [pip]
             deps:
@@ -63,7 +63,9 @@ jobs:
             yum install -y rpm-build redhat-rpm-config
             $BASE_PYTHON -m venv /tmp/testvenv
             /tmp/testvenv/bin/pip install .
-        - package_code: /tmp/testvenv/bin/invirtualenv create_package rpm
+        - package_code: |
+            PACKAGE_VERSION=`meta get package.version`
+            /tmp/testvenv/bin/invirtualenv create_package rpm
         - install_package: rpm -ivh invirtualenv*.rpm
     requires: [publish_test_pypi]
   
@@ -71,4 +73,4 @@ jobs:
     template: python/package_python
     environment:
       PUBLISH: True
-    requires: [package_rpm]
+    requires: [package_rpm, verify_test_package]
