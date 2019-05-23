@@ -1,7 +1,7 @@
 [![Build Status](https://cd.screwdriver.cd/pipelines/2835/badge)](https://cd.screwdriver.cd/pipelines/2835)
 [![Documentation](https://readthedocs.org/projects/invirtualenv/badge/?version=latest)](https://invirtualenv.readthedocs.io/en/latest/?badge=latest)
 [![Code Coverage](https://codecov.io/gh/yahoo/invirtualenv/branch/master/graph/badge.svg)](https://codecov.io/gh/yahoo/invirtualenv)
-[![Wheel](https://img.shields.io/pypi/wheel/pycodestyle.svg)](https://pypi.org/project/invirtualenv/)
+[![Wheel](https://img.shields.io/pypi/wheel/invirtualenv.svg)](https://pypi.org/project/invirtualenv/)
 [![Downloads](https://pepy.tech/badge/invirtualenv)](https://pepy.tech/project/invirtualenv)
 
 # InVirtualEnv
