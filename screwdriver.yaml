@@ -39,16 +39,16 @@ jobs:
         - postmotd: |
             cat > deploy.conf <<EOF
             [global]
-            name = invirtualenv
+            name = serviceping
             description = invirtualenv utility for deploying python applicatons
-            version = {{PACKAGE_VERSION|default('0.0.0')}}
+            version = 18.8.1
             link_bin_files = True
             virtualenv_dir = /var/lib/virtualenvs
-            basepython=python
+            basepython=python3
 
             [pip]
             deps:
-                invirtualenv=={{PACKAGE_VERSION|default('0.0.0')}}
+                serviceping==18.8.1
 
             [rpm_package]
             deps:

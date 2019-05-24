@@ -1,19 +1,23 @@
 [![Build Status](https://cd.screwdriver.cd/pipelines/2835/badge)](https://cd.screwdriver.cd/pipelines/2835)
 [![Documentation](https://readthedocs.org/projects/invirtualenv/badge/?version=latest)](https://invirtualenv.readthedocs.io/en/latest/?badge=latest)
 [![Code Coverage](https://codecov.io/gh/yahoo/invirtualenv/branch/master/graph/badge.svg)](https://codecov.io/gh/yahoo/invirtualenv)
+[![Wheel](https://img.shields.io/pypi/wheel/invirtualenv.svg)](https://pypi.org/project/invirtualenv/)
 [![Downloads](https://pepy.tech/badge/invirtualenv)](https://pepy.tech/project/invirtualenv)
 
 # InVirtualEnv
 
-The invirtualenv package contains scripts for deploying applications written in Python onto operating systems.
+Utilities for deploying applications written in Python.
 
-These included scripts can:
+![banner](logo.png)
 
-* Create native packages via plugins that contain a Python application installed inside.  Currently there are plugins to create rpms and docker containers.
-* Create a specified operating system platform using an RPM package list.
-* Create a Python virtualenv, when running as root the virtualenv can be deployed so that it can be manipulated by another user.
-* Deploy Python packages into the virtualenv from a pip requirements file.
-* Create a docker container with the application installed.
+## Background
 
-The script can be configured using command line arguments or all configuration
-can be defined in a single deploy.conf file.
+This project is an extensible utility that creates deployment artifacts for Python applications in multiple formats from a single configuration file.  This simplifies the creation of CI Pipelines that support multiple installation methods.
+
+## Contribute
+
+Please refer to [the contributing.md file](Contributing.md) for information about how to get involved. We welcome issues, questions, and pull requests. Pull Requests are welcome.
+
+## License
+
+This project is licensed under the terms o fthe [BSD](LICENSE-BSD) open source license.  Please refer to [LICENSE](LICENSE.txt) for the full terms.
