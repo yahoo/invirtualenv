@@ -87,7 +87,7 @@ function install_invirtualenv {
 
     ${venv_pip} install -U setuptools
     ${venv_pip} install -U wheel virtualenv
-    ${venv_pip} install "pip<19.0"
+    ${venv_pip} install -U "pip<19.0"
     ${venv_pip} install -U invirtualenv
     deactivate || true
 }
