@@ -3,7 +3,7 @@ set -e
 
 INVIRTUALENV_DIR="/var/lib/invirtualenv"
 INSTALLVENV="/var/lib/invirtualenv/installvenv"
-VENV_COMMAND="virtualenv"
+VENV_COMMAND=""
 PYTHON="python3"
 
 if [ "$LANG" = "" ]; then
@@ -16,6 +16,16 @@ function header {
     echo "========================================================================"
     
 }
+
+function init_path {
+    if [ -e "/opt/python/bin" ]; then
+        export PATH="/opt/python/bin:$PATH"
+    fi
+    if [ -e "/opt/python" ]; then
+        PATH=`ls -1d /opt/python/*|sort -r|while read item; do echo -n ${item}/bin:; done`:$PATH
+    fi
+    export PATH=$PATH:/usr/local/bin
+ }
 
 function init_directories {
     mkdir -p "/var/lib/virtualenvs"
@@ -101,20 +111,36 @@ function deploy {
     cd ${cwd}
 }
 
+function check_for_python {
+    header "Searching for an installed Python 3 interpreter with working venv module"
+    RC=0;python3 -m venv --help > /dev/null 2>&1|| RC="$?"
+    if [ "$RC" = "0" ]; then
+        echo "Found existing python3 interpreter with working virtualenv"
+        VENV_COMMAND="python3 -m venv"        
+    fi
+}
 
 # Main code starts here
 init_directories
 
-if [ -e "/usr/bin/apt-get" ]; then
-    init_debian
-fi
+init_path
 
-if [ -e "/usr/bin/yum" ]; then
-    init_rpm
-fi
+check_for_python
 
-if [ -e "/sbin/apk" ]; then
-    init_alpine
+if [ "$VENV_COMMAND" = "" ]; then
+    VENV_COMMAND="virtualenv"
+
+    if [ -e "/usr/bin/apt-get" ]; then
+        init_debian
+    fi
+
+    if [ -e "/usr/bin/yum" ]; then
+        init_rpm
+    fi
+
+    if [ -e "/sbin/apk" ]; then
+        init_alpine
+    fi
 fi
 
 install_invirtualenv

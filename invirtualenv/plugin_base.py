@@ -115,11 +115,12 @@ class InvirtualenvPlugin(object):
                 self.loaded_configuration.write(deploy_conf_handle)
             generate_parsed_config_file('deploy.conf.unparsed', 'deploy.conf')
             package = self.run_package_command(hashes, wheel_dir=wheel_dir)  # pylint: disable=E1128,E1111
-            if package:
+            if package and os.path.exists(package):
                 source = package
                 dest = os.path.join(original_directory, os.path.basename(package))
                 shutil.copyfile(source, dest)
                 return dest
+            return package
 
     def generate_wheel_archive(self, filename=None):
         if not filename:
