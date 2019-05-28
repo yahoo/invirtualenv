@@ -33,8 +33,10 @@ jobs:
         PYPI_INDEX_URL: https://test.pypi.org/simple
     requires: [publish_test_pypi]
   
-  package_rpm:
-    template: python/package_python
+  verify_rpm_package:
+    template: python/package_rpm
+    environment:
+        PUBLISH: False
     steps:
         - postmotd: |
             cat > deploy.conf <<EOF
@@ -59,14 +61,9 @@ jobs:
             # To run a script when the container starts, uncomment the following and replace {scriptname} with the nane of the script to run.
             # entrypoint=/var/lib/virtualenvs/sdv4_v5_pipeline_validation_{{PACKAGE_VERSION|default('0.0.0')}}/bin/{scriptname}
             EOF
-        - install_utility: |
-            yum install -y rpm-build redhat-rpm-config
-            $BASE_PYTHON -m venv /tmp/testvenv
-            /tmp/testvenv/bin/pip install .
-        - package_code: |
-            PACKAGE_VERSION=`meta get package.version`
-            /tmp/testvenv/bin/invirtualenv create_package rpm
-        - install_package: rpm -ivh invirtualenv*.rpm
+        - postinstall_utility: |
+            # Install the version from this repo instead of the invirtualenv from pypi
+            $BASE_PYTHON -m pip install .
     requires: [publish_test_pypi]
   
   publish_prod_pypi:
