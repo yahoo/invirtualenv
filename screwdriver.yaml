@@ -54,20 +54,14 @@ jobs:
 
             [rpm_package]
             deps:
-
-            [docker_container]
-            base_image=quay.io/pypa/manylinux2010_x86_64
-            container_name=yahoo/invirtualenv
-            # To run a script when the container starts, uncomment the following and replace {scriptname} with the nane of the script to run.
-            # entrypoint=/var/lib/virtualenvs/sdv4_v5_pipeline_validation_{{PACKAGE_VERSION|default('0.0.0')}}/bin/{scriptname}
             EOF
         - postinstall_utility: |
             # Install the version from this repo instead of the invirtualenv from pypi
             $BASE_PYTHON -m pip install .
-    requires: [publish_test_pypi]
+    requires: [verify_test_package]
   
   publish_prod_pypi:
     template: python/package_python
     environment:
       PUBLISH: True
-    requires: [package_rpm, verify_test_package]
+    requires: [verify_rpm_package]
