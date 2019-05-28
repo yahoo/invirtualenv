@@ -56,10 +56,8 @@ DOCKERFILE_TEMPLATE = """FROM {{docker_container['base_image']|default('ubuntu:1
 # Set up invirtualenv in the container
 ENV PATH="/var/lib/invirtualenv/installvenv/bin:${PATH}"
 COPY docker_build.sh /tmp/docker_build.sh
-COPY deploy.conf /var/lib/invirtualenv/deploy.conf
-RUN chmod 755 /tmp/docker_build.sh
-RUN /tmp/docker_build.sh
-RUN rm /tmp/docker_build.sh
+# COPY deploy.conf /var/lib/invirtualenv/deploy.conf
+RUN chmod 755 /tmp/docker_build.sh && /tmp/docker_build.sh && rm /tmp/docker_build.sh
 
 {% if docker_container['run_after'] %}# Post Invirtualenv Commands
 {% for runline in docker_container['run_after'] %}RUN {{runline}}
@@ -171,4 +169,5 @@ class InvirtualenvDocker(InvirtualenvPlugin):
         command = [find_executable('docker'), 'build', '-t', container_tag, '.']
         logger.debug('Running command %r', ' '.join(command))
         subprocess.check_call(command)
+        logger.debug('Created container %r', container_tag)
         return container_tag

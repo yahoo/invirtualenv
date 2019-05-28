@@ -4,6 +4,7 @@ Command line interface to invirtualenv v2
 import argparse
 import logging
 import os
+import shutil
 import sys
 from .config import get_configuration_dict
 from .contextmanager import InTemporaryDirectory
@@ -104,9 +105,10 @@ def create_package_command(args):
         with open(args.deploy_conf, 'w') as deploy_conf_handle:
             deploy_conf_handle.write(deploy_config_contents)
         package_file = create_package(args.package_type)
-        dest_package_file = os.path.join(orig_directory, os.path.basename(package_file))
-        if os.path.exists(package_file):
-            os.rename(package_file, dest_package_file)
+        if package_file:
+            dest_package_file = os.path.join(orig_directory, os.path.basename(package_file))
+            if os.path.exists(package_file):
+                shutil.copy(package_file, dest_package_file)
 
     if package_file:
         logging.debug('Generated package file: %s' % dest_package_file)
