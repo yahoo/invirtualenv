@@ -13,7 +13,7 @@ import logging
 import os
 from pwd import getpwnam
 import shutil
-import subprocess
+import subprocess  # nosec
 import sys
 
 try:
@@ -126,7 +126,7 @@ def upgrade_package_tools(virtualenv_directory, verbose=False):
         [python_interpreter, pip_command, 'install', '--upgrade', 'wheel'],
     ]:
         try:
-            output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+            output = subprocess.check_output(command, stderr=subprocess.STDOUT)  # nosec
             if verbose:
                 print(output.decode().strip())
         except subprocess.CalledProcessError as error:
@@ -198,7 +198,7 @@ def build_virtualenv(
             'Building virtualenv using external command %r', ' '.join(command)
         )
         try:
-            output = subprocess.check_output(
+            output = subprocess.check_output(  # nosec
                 command,
                 stderr=subprocess.STDOUT,
             )
