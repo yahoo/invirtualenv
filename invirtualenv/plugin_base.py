@@ -8,7 +8,7 @@ Functions to enable packaging plugin functionality
 import logging
 import os
 import shutil
-import subprocess
+import subprocess  # nosec
 import sys
 from jinja2 import Template
 from .config import get_configuration_dict, get_configuration, generate_parsed_config_file
@@ -125,7 +125,7 @@ class InvirtualenvPlugin(object):
     def generate_wheel_archive(self, filename=None):
         if not filename:
             filename = 'wheels.tar.gz'
-        subprocess.check_call(['tar', '-czf', filename, 'wheels'])
+        subprocess.check_call(['tar', '-czf', filename, 'wheels'])  # nosec
 
     def generate_wheel_packages(self, wheeldir):
         """
@@ -147,7 +147,7 @@ class InvirtualenvPlugin(object):
             deps = self.config['pip'].get('deps', []) + ['invirtualenv']
             cmd = self.pip_cmd + ['-q', 'wheel', '-w', '.'] + deps
             logger.debug('Running pip command %r to generate wheel packages', cmd)
-            subprocess.check_call(cmd)
+            subprocess.check_call(cmd)  # nosec
             for filename in os.listdir('.'):
                 if filename.endswith('.whl'):
                     cmd = self.pip_cmd + ['hash']
@@ -155,7 +155,7 @@ class InvirtualenvPlugin(object):
                         cmd += ['-a', self.hash]
                     cmd += [filename]
                     logger.debug('Running pip command %r to generate package hash for %r', cmd, filename)
-                    hashes[filename] = '='.join(subprocess.check_output(cmd).decode().split(os.linesep)[1].split('=')[1:])
+                    hashes[filename] = '='.join(subprocess.check_output(cmd).decode().split(os.linesep)[1].split('=')[1:])  # nosec
                     logger.debug('Got requirements line %r', hashes[filename])
         return hashes
 
