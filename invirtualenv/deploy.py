@@ -11,7 +11,7 @@ import json
 import logging
 import os
 from pwd import getpwnam
-import subprocess
+import subprocess  # nosec
 import tempfile
 from .utility import display_header
 from .config import get_configuration_dict, parse_arguments
@@ -50,7 +50,7 @@ def fix_file_ownership(virtualenv, user, group):
     :return:
     """
     if (user and group) and virtualenv:
-        subprocess.check_call(
+        subprocess.check_call(  # nosec
             [
                 'chown',
                 '-R',
@@ -61,9 +61,7 @@ def fix_file_ownership(virtualenv, user, group):
                 virtualenv
             ]
         )
-        subprocess.check_call(
-            ['chmod', '-R', 'g+wx', virtualenv]
-        )
+        subprocess.check_call(['chmod', '-R', 'g+wx', virtualenv])  # nosec
 
 
 def install_python_dependencies(virtualenv, deps=None, requirements=None,
@@ -159,7 +157,7 @@ def install_rpm_dependencies(deps=None, fail_missing=True):  # pragma: no cover
         if os.path.exists(COMMANDS['yum']):
             command = [COMMANDS['yum'], 'install', '-y'] + deps
             logger.debug('Running command: %s', ' '.join(command))
-            subprocess.check_call(command)
+            subprocess.check_call(command)  # nosec
 
 
 def build_deploy_virtualenv(arguments=None, configuration=None, update_existing=True, verbose=None):
