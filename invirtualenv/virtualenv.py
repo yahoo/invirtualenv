@@ -60,9 +60,9 @@ def virtualenv_command(install_virtualenv=False):
     """
     if not hasattr(sys, 'frozen'):
         if install_virtualenv:
-            packages = os.popen('pip freeze').read()
+            packages = os.popen('pip freeze').read()  # nosec
             if 'virtualenv' not in packages:
-                subprocess.check_output(['pip', 'install', 'virtualenv'])
+                subprocess.check_output(['pip', 'install', 'virtualenv'])  # nosec
     return which('virtualenv')
 
 
