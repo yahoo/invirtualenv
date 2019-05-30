@@ -7,7 +7,7 @@ Functions for managing packaging
 """
 import os
 import platform
-from xml.etree import ElementTree
+from defusedxml import ElementTree
 import subprocess  # nosec
 
 try:  # pragma: no cover
