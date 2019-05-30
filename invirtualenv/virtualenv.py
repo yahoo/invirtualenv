@@ -41,7 +41,7 @@ def default_virtualenv_directory():
     if os.path.exists('/var/tmp'):
         return '/var/tmp/virtualenv'
 
-    return '/tmp/virtualenv'
+    return '/tmp/virtualenv'  # nosec
 
 
 def virtualenv_command(install_virtualenv=False):
