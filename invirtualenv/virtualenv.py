@@ -39,7 +39,7 @@ def default_virtualenv_directory():
         The path to the default virtualenv directory
     """
     if os.path.exists('/var/tmp'):
-        return '/var/tmp/virtualenv'
+        return '/var/tmp/virtualenv'  # nosec
 
     return '/tmp/virtualenv'  # nosec
 
