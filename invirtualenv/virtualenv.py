@@ -272,9 +272,7 @@ def install_requirements(
         requirements, virtualenv, user
     )
     logger.debug('Current user is: %r', getpass.getuser())
-    logger.debug(
-        'Current uid: %d, Effective uid: %d', os.getuid(), os.geteuid()
-    )
+    logger.debug('Current uid: %d, Effective uid: %d', os.getuid(), os.geteuid())
 
     if isinstance(requirements, str):
         requirements = [requirements]
@@ -318,7 +316,7 @@ def install_requirements(
         ] + extra_pip_args
         logger.debug('Running command: %s', ' '.join(command))
         try:
-            output = subprocess.check_output(
+            output = subprocess.check_output(  # nosec
                 command, stderr=subprocess.STDOUT,
                 # preexec_fn=change_uid_gid(user_uid=user_uid)
             )
@@ -329,9 +327,7 @@ def install_requirements(
             logger.exception('PIP install operation failed')
             raise BuildException('PIP install operation failed')
 
-    after_binfiles_filename = os.path.join(
-        virtualenv, 'conf/binfiles_postdeploy.json'
-    )
+    after_binfiles_filename = os.path.join(virtualenv, 'conf/binfiles_postdeploy.json')
     logger.debug('Writing binfiles hashes to %r', after_binfiles_filename)
     with open(after_binfiles_filename, 'w') as after_binfiles_handle:
         after_binfiles = virtualenv_bin_file_hashes(virtualenv)
