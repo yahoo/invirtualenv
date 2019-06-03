@@ -7,8 +7,8 @@ Functions for managing packaging
 """
 import os
 import platform
-from xml.etree import ElementTree
-import subprocess
+from defusedxml import ElementTree
+import subprocess  # nosec
 
 try:  # pragma: no cover
     import configparser as ConfigParser
@@ -179,7 +179,7 @@ def install_prereq_packages(test=False):  # pragma: no cover
     display_header('Installing build system needed for build on Redhat %s' % redhat_release)
     display_header('Installing additional build dependencies')
     if not test:  # pragma: no cover
-        subprocess.check_output(['yum', '-y', 'install'] + needed_packages)
+        subprocess.check_output(['yum', '-y', 'install'] + needed_packages)  # nosec
 
     display_header('Verifying needed dependencies where installed')
     for filename in resulting_files:

@@ -30,7 +30,7 @@ def get_terminal_size():
         The number of columns on the current terminal.
     """
     try:
-        rows, columns = os.popen('stty size', 'r').read().split()
+        rows, columns = os.popen('stty size', 'r').read().split()  # nosec
     except ValueError:  # pragma: no cover
         rows = 24
         columns = 80

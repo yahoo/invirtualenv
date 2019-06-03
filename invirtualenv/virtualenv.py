@@ -13,7 +13,7 @@ import logging
 import os
 from pwd import getpwnam
 import shutil
-import subprocess
+import subprocess  # nosec
 import sys
 
 try:
@@ -38,10 +38,10 @@ def default_virtualenv_directory():
     str
         The path to the default virtualenv directory
     """
-    if os.path.exists('/var/tmp'):
-        return '/var/tmp/virtualenv'
+    if os.path.exists('/var/tmp'):  # nosec
+        return '/var/tmp/virtualenv'  # nosec
 
-    return '/tmp/virtualenv'
+    return '/tmp/virtualenv'  # nosec
 
 
 def virtualenv_command(install_virtualenv=False):
@@ -60,9 +60,9 @@ def virtualenv_command(install_virtualenv=False):
     """
     if not hasattr(sys, 'frozen'):
         if install_virtualenv:
-            packages = os.popen('pip freeze').read()
+            packages = os.popen('pip freeze').read()  # nosec
             if 'virtualenv' not in packages:
-                subprocess.check_output(['pip', 'install', 'virtualenv'])
+                subprocess.check_output(['pip', 'install', 'virtualenv'])  # nosec
     return which('virtualenv')
 
 
@@ -126,7 +126,7 @@ def upgrade_package_tools(virtualenv_directory, verbose=False):
         [python_interpreter, pip_command, 'install', '--upgrade', 'wheel'],
     ]:
         try:
-            output = subprocess.check_output(command, stderr=subprocess.STDOUT)
+            output = subprocess.check_output(command, stderr=subprocess.STDOUT)  # nosec
             if verbose:
                 print(output.decode().strip())
         except subprocess.CalledProcessError as error:
@@ -198,7 +198,7 @@ def build_virtualenv(
             'Building virtualenv using external command %r', ' '.join(command)
         )
         try:
-            output = subprocess.check_output(
+            output = subprocess.check_output(  # nosec
                 command,
                 stderr=subprocess.STDOUT,
             )
@@ -272,9 +272,7 @@ def install_requirements(
         requirements, virtualenv, user
     )
     logger.debug('Current user is: %r', getpass.getuser())
-    logger.debug(
-        'Current uid: %d, Effective uid: %d', os.getuid(), os.geteuid()
-    )
+    logger.debug('Current uid: %d, Effective uid: %d', os.getuid(), os.geteuid())
 
     if isinstance(requirements, str):
         requirements = [requirements]
@@ -318,7 +316,7 @@ def install_requirements(
         ] + extra_pip_args
         logger.debug('Running command: %s', ' '.join(command))
         try:
-            output = subprocess.check_output(
+            output = subprocess.check_output(  # nosec
                 command, stderr=subprocess.STDOUT,
                 # preexec_fn=change_uid_gid(user_uid=user_uid)
             )
@@ -329,9 +327,7 @@ def install_requirements(
             logger.exception('PIP install operation failed')
             raise BuildException('PIP install operation failed')
 
-    after_binfiles_filename = os.path.join(
-        virtualenv, 'conf/binfiles_postdeploy.json'
-    )
+    after_binfiles_filename = os.path.join(virtualenv, 'conf/binfiles_postdeploy.json')
     logger.debug('Writing binfiles hashes to %r', after_binfiles_filename)
     with open(after_binfiles_filename, 'w') as after_binfiles_handle:
         after_binfiles = virtualenv_bin_file_hashes(virtualenv)
