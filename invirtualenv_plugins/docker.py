@@ -56,7 +56,7 @@ DOCKERFILE_TEMPLATE = """FROM {{docker_container['base_image']|default('ubuntu:1
 # Set up invirtualenv in the container
 ENV PATH="/var/lib/invirtualenv/installvenv/bin:${PATH}"
 COPY docker_build.sh /tmp/docker_build.sh
-# COPY deploy.conf /var/lib/invirtualenv/deploy.conf
+COPY deploy.conf /var/lib/invirtualenv/deploy.conf
 RUN chmod 755 /tmp/docker_build.sh && /tmp/docker_build.sh && rm /tmp/docker_build.sh
 
 {% if docker_container['run_after'] %}# Post Invirtualenv Commands
