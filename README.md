@@ -8,7 +8,6 @@
 
 Utilities for deploying applications written in Python.
 
-![banner](logo.png)
 
 ## Background
 
