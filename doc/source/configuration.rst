@@ -61,7 +61,7 @@ python interpreter that runs the virtualenv command.
 install_manifest
 ~~~~~~~~~~~~~~~~
 
-The :ref:`[global]install_manifest` setting specifies a comma seperated list
+The :ref:`[global]install_manifest` setting specifies a comma separated list
 of manifests to install.  If this setting is not set all package manifests
 (lists of packages) that will be installed.
 
@@ -194,7 +194,7 @@ docker_container packaging (creation)
 #####################################
 
 The [docker_container] section contains the settings used to create a docker
-container containing the python application in a virtualenv.  This sectiion allows
+container containing the python application in a virtualenv.  This section allows
 for adding settings used to create the docker container.
 
 The docker plugin will generate basic sane container based on the defaults and values
@@ -282,7 +282,7 @@ A list of volume mappings to use with the container.
 rpm packaging
 #############
 The [rpm_package] section defines settings related to the creation of rpm packages.
-The settings in this section will overide the default values from the global settings
+The settings in this section will override the default values from the global settings
 for rpm package generation only.
 
 .. _[rpm_package]deps:
