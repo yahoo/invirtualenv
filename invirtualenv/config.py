@@ -60,11 +60,11 @@ def cast_types(configuration, types_dict=None):
                 elif setting_type is list:
                     setting_type = str_to_list
                 configuration[section][key] = setting_type(value)
-                logger.debug(
-                    'Forced value %r of type %r to type %r, result is %r',
-                    value, type(value), setting_type,
-                    configuration[section][key]
-                )
+                # logger.debug(
+                #     'Forced value %r of type %r to type %r, result is %r',
+                #     value, type(value), setting_type,
+                #     configuration[section][key]
+                # )
             except (KeyError, TypeError):
                 pass
 
@@ -101,7 +101,7 @@ def get_configuration(configuration=None):
     except AttributeError:
         config.readfp(io.BytesIO(config_defaults()))
 
-    logger.debug('Working with default dict: %r', config_defaults())
+    # logger.debug('Working with default dict: %r', config_defaults())
     config.read(configuration)
     return config
 

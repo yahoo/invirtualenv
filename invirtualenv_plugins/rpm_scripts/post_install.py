@@ -31,10 +31,21 @@ def get_config_flag(section, option, config_filename=None):
 
 
 if __name__ == "__main__":
-    # logging.basicConfig(level=logging.DEBUG)
-    logger = logging.getLogger(sys.argv[0])
+    log_level = logging.INFO
+    if os.environ.get('RPM_SCRIPTLET_DEBUG', 'false').lower() in ['true', '1', 'on']:
+        log_level = logging.DEBUG
+
+    logging.basicConfig(level=log_level, format='%(asctime)s %(levelname)-5s [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y%m%d:%H:%M:%S')
+
+    logger = logging.getLogger(os.path.basename(sys.argv[0]))
 
     logger.debug('Running post install steps, from directory %r' % os.getcwd())
+
+    upgrade = False
+    scriptlet_argument = os.environ.get('RPM_ARG', '')
+    if scriptlet_argument and scriptlet_argument == '2':
+        upgrade = True
+    logger.debug('Running post_install %s, upgrade=%r', scriptlet_argument, upgrade)
 
     if not os.path.exists('deploy.conf'):
         print("No 'deploy.conf' found.  Doing nothing", file=sys.stderr)
@@ -54,16 +65,13 @@ if __name__ == "__main__":
             shutil.rmtree(venv_directory)
         sys.exit(1)
 
-    try:
-        if get_config_flag('global', 'link_bin_files'):
-            logger.debug('Linking files in the virtualenv bin directory to %r', os.path.dirname(sys.executable))
-            try:
-                from invirtualenv.deploy import link_deployed_bin_files
-                link_deployed_bin_files(venv_directory, '/usr/bin')
-            except ImportError:
-                print('WARNING: The installed version of invirtualenv does not support linking bin files')
-    except Exception:
-        logger.exception('An error occurred linking bin files into %r', os.path.dirname(sys.executable))
+    if get_config_flag('global', 'link_bin_files'):
+        logger.debug('Linking files in the virtualenv bin directory to %r', os.path.dirname(sys.executable))
+        try:
+            from invirtualenv.deploy import link_deployed_bin_files
+            link_deployed_bin_files(venv_directory, '/usr/bin')
+        except ImportError:
+            print('WARNING: The installed version of invirtualenv does not support linking bin files')
 
     print('Created virtualenv %r' % venv_directory)
     sys.exit(0)
