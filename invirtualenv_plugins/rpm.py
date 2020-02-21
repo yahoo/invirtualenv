@@ -37,6 +37,7 @@ chmod 755 %{buildroot}/usr/share/%{name}_%{version}/package_scripts/post_install
 chmod 755 %{buildroot}/usr/share/%{name}_%{version}/package_scripts/pre_uninstall.py
 
 %post
+export RPM_ARG="$1"
 export PATH=$PATH:/opt/python/bin:/usr/local/bin
 virtualenv -p {{global['basepython']}} /usr/share/%{name}_%{version}/invirtualenv_deployer
 /usr/share/%{name}_%{version}/invirtualenv_deployer/bin/pip install -q --find-links=/usr/share/%{name}_%{version}/wheels invirtualenv configparser
@@ -44,13 +45,14 @@ cd /usr/share/%{name}_%{version}
 /usr/share/%{name}_%{version}/invirtualenv_deployer/bin/python /usr/share/%{name}_%{version}/package_scripts/post_install.py
 
 %preun
+export RPM_ARG="$1"
 /usr/share/%{name}_%{version}/invirtualenv_deployer/bin/python /usr/share/%{name}_%{version}/package_scripts/pre_uninstall.py
 
 %postun
 rm -rf /usr/share/%{name}_%{version}
 
 %files
-%defattr(0755, root, root)
+%defattr(0755, root, root, 0755)
 /usr/share/%{name}_%{version}/*
 {% if rpm_package['files'] %}
 {% endif %}

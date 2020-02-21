@@ -266,7 +266,7 @@ def install_requirements(
         Install wheels from local directory
         Default=False
     """
-    logger.info(
+    logger.debug(
         'Installing requirements from requirements file: %r '
         'into virtualenv %r as user %r',
         requirements, virtualenv, user
@@ -307,7 +307,7 @@ def install_requirements(
         chown_recursive('pip_cache_dir', user_uid, user_gid)
 
     for requirement in requirements:
-        logger.info('Installing python requirements from file %r', requirement)
+        logger.debug('Installing python requirements from file %r', requirement)
         command = [
             os.path.join(virtualenv_bin, 'pip'),
             'install',
@@ -323,8 +323,8 @@ def install_requirements(
             if verbose:
                 print(output.decode())
         except subprocess.CalledProcessError as error:
-            print(error.output.decode())
             logger.exception('PIP install operation failed')
+            print(error.output.decode())
             raise BuildException('PIP install operation failed')
 
     after_binfiles_filename = os.path.join(virtualenv, 'conf/binfiles_postdeploy.json')

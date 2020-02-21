@@ -200,10 +200,9 @@ def build_deploy_virtualenv(arguments=None, configuration=None, update_existing=
     # display_header('Parsing the configuration')
     config = get_configuration_dict(configuration=configuration)
     if not arguments:
-        logger.debug(
-            'No arguments dictionary passed, parsing command line arguments')
+        logger.debug('No arguments dictionary passed, parsing command line arguments')
         arguments = parse_arguments(configuration=configuration)
-        logger.debug('Arguments are: %s', arguments)
+        # logger.debug('Arguments are: %s', arguments)
 
     if verbose is None:
         verbose = arguments.verbose
@@ -397,14 +396,14 @@ def link_deployed_bin_files(venv, destbin):  # pragma: no cover
     for filename in deployed_bin_files(venv):
         source_filename = os.path.expanduser(os.path.join(venv_bin, filename))
         dest_filename = os.path.expanduser(os.path.join(destbin, filename))
-        if os.path.exists(dest_filename):
+        if os.path.exists(dest_filename) and not os.path.islink(dest_filename):
             logger.debug('Not overwriting existing file %r', dest_filename)
             continue
 
         # os.path.exists() returns False for broken symlinks so we need to check
         # to see if the dest_filename is a symlink.
         if os.path.islink(dest_filename):
-            logger.warning('Removing broken symlink %r', dest_filename)
+            logger.debug('Removing broken symlink %r', dest_filename)
             os.unlink(dest_filename)
         os.symlink(source_filename, dest_filename)
         linked_files.append(dest_filename)
