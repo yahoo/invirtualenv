@@ -26,6 +26,7 @@ class InvirtualenvPlugin(object):
     default_config_filename = 'invirtualenv.configuration'
     package_template = ''
     hash = None  # PIP hash algorithm to use, can be sha256, sha384, sha512 or None (no hashing)
+    noarch = True
 
     def __init__(self, config_file='deploy.conf'):
         self.config_file = config_file
@@ -150,6 +151,8 @@ class InvirtualenvPlugin(object):
             subprocess.check_call(cmd)  # nosec
             for filename in os.listdir('.'):
                 if filename.endswith('.whl'):
+                    if not filename.endswith('none-any.whl'):
+                        self.noarch = False
                     cmd = self.pip_cmd + ['hash']
                     if self.hash:
                         cmd += ['-a', self.hash]

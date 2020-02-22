@@ -34,7 +34,6 @@ deps:
 [rpm]
 fail_missing_yum = True
 deps:
-
 """
 CONFIG_TYPES = {
     'global': {
