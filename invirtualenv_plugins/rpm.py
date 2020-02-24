@@ -19,7 +19,7 @@ Group: {{rpm_package['group']|default('Development')}}
 Packager: {{rpm_package['packager']|default('VerizonMedia')}}
 URL: {{global['url']|default('https://github.com/yahoo/invirtualenv')}}
 AutoReqProv: no
-BuildArch: noarch
+{% if rpm_package['noarch'] %}BuildArch: noarch{% endif %}
 Requires(post): {{global['basepython']}}
 Requires(post): python-virtualenv
 
@@ -62,14 +62,13 @@ RPM_CONFIG_DEFAULT = """[rpm_package]
 deps:
 """
 
-
 class InvirtualenvRPM(InvirtualenvPlugin):
     package_formats = ['rpm']
     package_template = SPEC_TEMPLATE
     config_default = RPM_CONFIG_DEFAULT
     config_types = {
         'rpm_package': {
-            'deps': list
+            'deps': list,
         }
     }
     default_config_filename = 'invirtualenv.spec'
@@ -85,6 +84,7 @@ class InvirtualenvRPM(InvirtualenvPlugin):
         # self.config['rpm_package']['deps'].append('invirtualenv')
         self.config['rpm_package']['cwd'] = os.getcwd()
         description = self.config['global'].get('description', '').strip()
+        self.config['rpm_package']['noarch'] = self.noarch
         if not description:
             self.config['global']['description'] = 'No description available'
 
