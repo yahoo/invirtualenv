@@ -1,76 +1,158 @@
 version: 4
 shared:
-  environment:
-    CHANGELOG_FILENAME: docs/changelog.md
-    PACKAGE_DIRECTORY: invirtualenv
+    environment:
+        CHANGELOG_FILENAME: docs/changelog.md
+        PACKAGE_DIRECTORY: invirtualenv
 
 jobs:
-  validate_test:
-    template: python/validate_unittest
-    requires: [~commit, ~pr]
+    # Run the unittests
+    validate_test:
+        template: python/validate_unittest
+        requires: [~commit, ~pr]
 
-  validate_lint:
-    template: python/validate_lint
-    requires: [~commit, ~pr]
+    # Run the code linter
+    validate_lint:
+        template: python/validate_lint
+        requires: [~commit, ~pr]
 
-  validate_codestyle:
-    template: python/validate_codestyle
-    requires: [~commit, ~pr]
+    # Validate code follows the style guide
+    validate_codestyle:
+        template: python/validate_codestyle
+        requires: [~commit, ~pr]
 
-  validate_safetydb:
-    template: python/validate_safety
-    requires: [~commit, ~pr]
-    
-  validate_security:
-    template: python/validate_security
-    requires: [~commit, ~pr]
-    
-  generate_version:
-    template: python/generate_version
-    requires: [~commit]
+    # Check for use of package dependencies that have security issues
+    validate_dep:
+        template: python/validate_safety
+        requires: [~commit, ~pr]
 
-  publish_test_pypi:
-    template: python/package_python
-    environment:
-      PUBLISH: True
-      TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
-    requires: [validate_test, validate_lint, validate_codestyle, validate_safetydb, validate_security, generate_version]
+    # Check code for common security issues
+    validate_security:
+        template: python/validate_security
+        requires: [~commit, ~pr]
 
-  verify_test_package:
-    template: python/validate_pypi_package
-    environment:
-        PYPI_INDEX_URL: https://test.pypi.org/simple
-    requires: [publish_test_pypi]
+    # Check that the code can generate a valid rpm packages
+    verify_rpm_centos7:
+        template: python/package_rpm
+        environment:
+            PUBLISH: False
+        image: centos:7
+        steps:
+            -   postmotd: |
+                    cat > deploy.conf <<EOF
+                    [global]
+                    name = serviceping
+                    description = invirtualenv utility for deploying python applicatons
+                    version = 18.8.1
+                    link_bin_files = True
+                    virtualenv_dir = /var/lib/virtualenvs
+                    basepython=/usr/bin/python3
+
+                    [pip]
+                    deps:
+                        serviceping==18.8.1
+
+                    [rpm_package]
+                    basepython=/usr/bin/python3
+                    deps:
+                        python3
+                    EOF
+            -   postupdate_version: |
+                    export PIP_FIND_LINKS="file://`pwd`/dist"
+                    $BASE_PYTHON setup.py sdist bdist_wheel
+                    echo $PIP_FIND_LINKS
+            -   postinstall_utility: |
+                    # Install the version from this repo instead of the invirtualenv from pypi
+                    $BASE_PYTHON -m pip install .
+        requires: [verify_test_package]
+
+    verify_rpm_centos8:
+        template: python/package_rpm
+        environment:
+            PUBLISH: False
+        image: centos:8
+        steps:
+            -   postmotd: |
+                    cat > deploy.conf <<EOF
+                    [global]
+                    name = serviceping
+                    description = invirtualenv utility for deploying python applicatons
+                    version = 18.8.1
+                    link_bin_files = True
+                    virtualenv_dir = /var/lib/virtualenvs
+                    basepython=/usr/bin/python3
+
+                    [pip]
+                    deps:
+                        serviceping==18.8.1
+
+                    [rpm_package]
+                    basepython=/usr/bin/python3
+                    deps:
+                        python3
+                    EOF
+            -   postupdate_version: |
+                    export PIP_FIND_LINKS="file://`pwd`/dist"
+                    $BASE_PYTHON setup.py sdist bdist_wheel
+                    echo $PIP_FIND_LINKS
+            -   postinstall_utility: |
+                    # Install the version from this repo instead of the invirtualenv from pypi
+                    $BASE_PYTHON -m pip install .
+        requires: [verify_test_package]
+
+    verify_rpm_fedora:
+        template: python/package_rpm
+        environment:
+            PUBLISH: False
+        image: fedora
+        steps:
+            - postmotd: |
+                cat > deploy.conf <<EOF
+                [global]
+                name = serviceping
+                description = invirtualenv utility for deploying python applicatons
+                version = 18.8.1
+                link_bin_files = True
+                virtualenv_dir = /var/lib/virtualenvs
+                basepython=/usr/bin/python3
+
+                [pip]
+                deps:
+                    serviceping==18.8.1
+
+                [rpm_package]
+                basepython=/usr/bin/python3
+                deps:
+                    python3
+                EOF
+            - postupdate_version: |
+                export PIP_FIND_LINKS="file://`pwd`/dist"
+                $BASE_PYTHON setup.py sdist bdist_wheel
+                echo $PIP_FIND_LINKS
+            - postinstall_utility: |
+                # Install the version from this repo instead of the invirtualenv from pypi
+                $BASE_PYTHON -m pip install .
+        requires: [verify_test_package]
+
+    # Generate a package version to publish
+    generate_version:
+        template: python/generate_version
+        requires: [validate_test, validate_lint, validate_codestyle, validate_safetydb, validate_security, verify_rpm_centos7, verify_rpm_centos8, verify_rpm_fedora]
+
+    publish_test_pypi:
+        template: python/package_python
+        environment:
+            PUBLISH: True
+            TWINE_REPOSITORY_URL: https://test.pypi.org/legacy/
+        requires: [generate_version]
+
+    verify_test_package:
+        template: python/validate_pypi_package
+        environment:
+            PYPI_INDEX_URL: https://test.pypi.org/simple
+        requires: [publish_test_pypi]
   
-  verify_rpm_package:
-    template: python/package_rpm
-    environment:
-        PUBLISH: False
-    steps:
-        - postmotd: |
-            cat > deploy.conf <<EOF
-            [global]
-            name = serviceping
-            description = invirtualenv utility for deploying python applicatons
-            version = 18.8.1
-            link_bin_files = True
-            virtualenv_dir = /var/lib/virtualenvs
-            basepython=python3
-
-            [pip]
-            deps:
-                serviceping==18.8.1
-
-            [rpm_package]
-            deps:
-            EOF
-        - postinstall_utility: |
-            # Install the version from this repo instead of the invirtualenv from pypi
-            $BASE_PYTHON -m pip install .
-    requires: [verify_test_package]
-  
-  publish_prod_pypi:
-    template: python/package_python
-    environment:
-      PUBLISH: True
-    requires: [verify_rpm_package]
+    publish_prod_pypi:
+        template: python/package_python
+        environment:
+            PUBLISH: True
+        requires: [verify_rpm_package]

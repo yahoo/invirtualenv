@@ -32,6 +32,7 @@ class InvirtualenvPlugin(object):
         self.config_file = config_file
         self.config = get_configuration_dict(configuration=config_file)
         self.loaded_configuration = get_configuration(configuration=config_file)
+        self.add_plugin_configuration()
 
     # Methods that need to be written for each plugin type
     def run_package_command(self, package_hashes, wheel_dir='wheels'):
@@ -161,6 +162,13 @@ class InvirtualenvPlugin(object):
                     hashes[filename] = '='.join(subprocess.check_output(cmd).decode().split(os.linesep)[1].split('=')[1:])  # nosec
                     logger.debug('Got requirements line %r', hashes[filename])
         return hashes
+
+    def add_plugin_configuration(self):
+        """
+        Add any specific plugin configuration values to the configuration
+        :return:
+        """
+        pass
 
     def render_template_with_config(self, template_str=None):
         if not template_str:

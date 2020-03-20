@@ -23,6 +23,7 @@ develop-eggs
 .installed.cfg
 lib
 lib64
+/*.rpm
 
 # Installer logs
 pip-log.txt
@@ -94,9 +95,14 @@ package_metadata.json
 /deploy.conf
 /.cache
 /.pytest_cache
-/venv
-.coveragerc
+/venv*
+.coverage*
 .idea/
 .python_screwdriver_local.json
 cobertura.xml
 test.dockerfile
+
+# Reports
+/coverage.xml
+/invirtualenv.spec
+/pytest_py*.xml

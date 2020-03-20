@@ -1,7 +1,11 @@
 import os
+import json
 import logging
 import subprocess
 import pkgutil
+
+import distro
+
 from invirtualenv.plugin_base import InvirtualenvPlugin
 from invirtualenv.utility import find_executable
 
@@ -15,13 +19,12 @@ Version: {{global['version']|default('0.0.0')}}
 Release: {{rpm_package['release']|default('1')}}
 License: {{rpm_package['license']|default('Closed Source')}}
 Group: {{rpm_package['group']|default('Development')}}
-{% if rpm_package['deps'] %}Requires: {% for package in rpm_package['deps'] %}{{package}}{{ ", " if not loop.last }}{% endfor %}{% endif %}
-Packager: {{rpm_package['packager']|default('VerizonMedia')}}
+Packager: {{rpm_package['packager']|default('Verizon')}}
 URL: {{global['url']|default('https://github.com/yahoo/invirtualenv')}}
 AutoReqProv: no
 {% if rpm_package['noarch'] %}BuildArch: noarch{% endif %}
-Requires(post): {{global['basepython']}}
-Requires(post): python-virtualenv
+{% if rpm_package['bootstrap_deps'] %}Requires(post): {% for package in rpm_package['bootstrap_deps'] %}{{package}}{{ ", " if not loop.last }}{% endfor %}{% endif %}
+{% if rpm_package['deps'] %}Requires: {% for package in rpm_package['deps'] %}{{package}}{{ ", " if not loop.last }}{% endfor %}{% endif %}
 
 %description
 {{rpm_package['description']|default('No description')}}
@@ -39,7 +42,7 @@ chmod 755 %{buildroot}/usr/share/%{name}_%{version}/package_scripts/pre_uninstal
 %post
 export RPM_ARG="$1"
 export PATH=$PATH:/opt/python/bin:/usr/local/bin
-virtualenv -p {{global['basepython']}} /usr/share/%{name}_%{version}/invirtualenv_deployer
+{% if 'python2' in rpm_package['basepython'] %}virtualenv -p {{rpm_package['basepython']}} /usr/share/%{name}_%{version}/invirtualenv_deployer{% else %}{{rpm_package['basepython']}} -m venv "/usr/share/%{name}_%{version}/invirtualenv_deployer"{% endif %}
 /usr/share/%{name}_%{version}/invirtualenv_deployer/bin/pip install -q --find-links=/usr/share/%{name}_%{version}/wheels invirtualenv configparser
 cd /usr/share/%{name}_%{version}
 /usr/share/%{name}_%{version}/invirtualenv_deployer/bin/python /usr/share/%{name}_%{version}/package_scripts/post_install.py
@@ -73,6 +76,32 @@ class InvirtualenvRPM(InvirtualenvPlugin):
     }
     default_config_filename = 'invirtualenv.spec'
 
+    def add_plugin_configuration(self):
+        # Make sure the configuration is sane
+        # self.config['rpm_package']['deps'].append('invirtualenv')
+        self.config['rpm_package']['cwd'] = os.getcwd()
+        self.config['rpm_package']['noarch'] = self.noarch
+        description = self.config['global'].get('description', '').strip()
+        if not description:
+            self.config['global']['description'] = 'No description available'
+
+        basepython = self.config['rpm_package'].get('basepython', '').strip()
+        gbasepython = self.config['global'].get('basepython', '').strip()
+        if not basepython and gbasepython:
+            self.config['rpm_package']['basepython'] = gbasepython
+
+        try:
+            major = int(distro.major_version())
+            minor = int(distro.minor_version())
+        except ValueError:
+            major = 0
+            minor = 0
+
+        self.config['rpm_package']['bootstrap_deps'] = ['python', 'python-virtualenv']  # RHEL releases before 7.6
+
+        if major > 7 or (major == 7 and minor > 6):
+            self.config['rpm_package']['bootstrap_deps'] = ['python3']  # RHEL 7.7 and newer
+
     def system_requirements_ok(self):
         if find_executable('rpmbuild'):
             return True
@@ -80,13 +109,7 @@ class InvirtualenvRPM(InvirtualenvPlugin):
         return False
 
     def run_package_command(self, package_hashes, wheel_dir='wheels'):
-        # Make sure the configuration is sane
-        # self.config['rpm_package']['deps'].append('invirtualenv')
         self.config['rpm_package']['cwd'] = os.getcwd()
-        description = self.config['global'].get('description', '').strip()
-        self.config['rpm_package']['noarch'] = self.noarch
-        if not description:
-            self.config['global']['description'] = 'No description available'
 
         # Get the packaging script
         for script in ['rpm_scripts/post_install.py', 'rpm_scripts/pre_uninstall.py']:
@@ -94,14 +117,15 @@ class InvirtualenvRPM(InvirtualenvPlugin):
                 script_handle.write(pkgutil.get_data('invirtualenv_plugins', script))
 
         logger.debug('Config')
-        logger.debug(self.config)
+        logger.debug(json.dumps(self.config, indent=4))
         logger.debug('Spec')
         logger.debug(self.render_template_with_config())
         logger.debug('Deploy.conf')
         logger.debug(open('deploy.conf').read())
+        print(f'CWD: {os.getcwd()}')
+        os.system('ls -lR')
         with open('package.spec', 'w') as spec_handle:
             spec_handle.write(self.render_template_with_config())
-        os.system('ls -lR')
         command = [find_executable('rpmbuild'), '-ba', 'package.spec']
         logger.debug('Running command %r', ' '.join(command))
         output = subprocess.check_output(command, env={'LANG': 'C'})
