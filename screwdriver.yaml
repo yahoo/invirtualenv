@@ -63,7 +63,7 @@ jobs:
             -   postinstall_utility: |
                     # Install the version from this repo instead of the invirtualenv from pypi
                     $BASE_PYTHON -m pip install .
-        requires: [verify_test_package]
+        requires: [~commit, ~pr]
 
     verify_rpm_centos8:
         template: python/package_rpm
@@ -97,7 +97,7 @@ jobs:
             -   postinstall_utility: |
                     # Install the version from this repo instead of the invirtualenv from pypi
                     $BASE_PYTHON -m pip install .
-        requires: [verify_test_package]
+        requires: [~commit, ~pr]
 
     verify_rpm_fedora:
         template: python/package_rpm
@@ -131,7 +131,7 @@ jobs:
             - postinstall_utility: |
                 # Install the version from this repo instead of the invirtualenv from pypi
                 $BASE_PYTHON -m pip install .
-        requires: [verify_test_package]
+        requires: [~commit, ~pr]
 
     # Generate a package version to publish
     generate_version:
