@@ -42,7 +42,7 @@ chmod 755 %{buildroot}/usr/share/%{name}_%{version}/package_scripts/pre_uninstal
 %post
 export RPM_ARG="$1"
 export PATH=$PATH:/opt/python/bin:/usr/local/bin
-{% if 'python2' in rpm_package['basepython'] %}virtualenv -p {{rpm_package['basepython']}} /usr/share/%{name}_%{version}/invirtualenv_deployer{% else %}{{rpm_package['basepython']}} -m venv "/usr/share/%{name}_%{version}/invirtualenv_deployer"{% endif %}
+{% if 'python-virtualenv' in rpm_package['bootstrap_deps'] %}virtualenv -p {{rpm_package['basepython']}} /usr/share/%{name}_%{version}/invirtualenv_deployer{% else %}{{rpm_package['basepython']}} -m venv "/usr/share/%{name}_%{version}/invirtualenv_deployer"{% endif %}
 /usr/share/%{name}_%{version}/invirtualenv_deployer/bin/pip install -q --find-links=/usr/share/%{name}_%{version}/wheels invirtualenv configparser
 cd /usr/share/%{name}_%{version}
 /usr/share/%{name}_%{version}/invirtualenv_deployer/bin/python /usr/share/%{name}_%{version}/package_scripts/post_install.py
@@ -97,10 +97,11 @@ class InvirtualenvRPM(InvirtualenvPlugin):
             major = 0
             minor = 0
 
-        self.config['rpm_package']['bootstrap_deps'] = ['python', 'python-virtualenv']  # RHEL releases before 7.6
 
         if major > 7 or (major == 7 and minor > 6):
             self.config['rpm_package']['bootstrap_deps'] = ['python3']  # RHEL 7.7 and newer
+        else:
+            self.config['rpm_package']['bootstrap_deps'] = ['python-virtualenv']  # RHEL releases before 7.6
 
     def system_requirements_ok(self):
         if find_executable('rpmbuild'):
