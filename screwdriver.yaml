@@ -31,6 +31,40 @@ jobs:
         requires: [~commit, ~pr]
 
     # Check that the code can generate a valid rpm packages
+    verify_rpm_centos6:
+        template: python/package_rpm
+        environment:
+            PUBLISH: False
+        image: centos:6
+        steps:
+            -   postmotd: |
+                    cat > deploy.conf <<EOF
+                    [global]
+                    name = serviceping
+                    description = invirtualenv utility for deploying python applicatons
+                    version = 18.8.1
+                    link_bin_files = True
+                    virtualenv_dir = /var/lib/virtualenvs
+                    basepython=python
+
+                    [pip]
+                    deps:
+                        serviceping==18.8.1
+
+                    [rpm_package]
+                    basepython=/usr/bin/python
+                    deps:
+                        python
+                    EOF
+            -   postupdate_version: |
+                    export PIP_FIND_LINKS="file://`pwd`/dist"
+                    $BASE_PYTHON setup.py sdist bdist_wheel
+                    echo $PIP_FIND_LINKS
+            -   postinstall_utility: |
+                    # Install the version from this repo instead of the invirtualenv from pypi
+                    $BASE_PYTHON -m pip install .
+        requires: [~commit, ~pr]
+
     verify_rpm_centos7:
         template: python/package_rpm
         environment:
@@ -136,7 +170,10 @@ jobs:
     # Generate a package version to publish
     generate_version:
         template: python/generate_version
-        requires: [validate_test, validate_lint, validate_codestyle, validate_safetydb, validate_security, verify_rpm_centos7, verify_rpm_centos8, verify_rpm_fedora]
+        requires: [
+            validate_test, validate_lint, validate_codestyle, validate_safetydb, validate_security,
+            verify_rpm_centos6, verify_rpm_centos7, verify_rpm_centos8, verify_rpm_fedora
+        ]
 
     publish_test_pypi:
         template: python/package_python
