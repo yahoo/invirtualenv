@@ -109,7 +109,11 @@ class InvirtualenvRPM(InvirtualenvPlugin):
         try:
             minor = int(distro.minor_version())
         except ValueError:
-            minor = 0
+            with open('/etc/system-release') as fh:
+                try:
+                    minor = int(fh.read().strip().split()[3].split('.')[1])
+                except (IndexError, ValueError):
+                    minor = 0
 
         self.config['global']['distro.name()'] = distro.name()
         self.config['global']['distro.major_version()'] = major
