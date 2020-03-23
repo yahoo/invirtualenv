@@ -50,10 +50,10 @@ export PIP_CMD="pip"
 
 # Bootstrap a Python virtualenv with the invirtualenv utility deployed in it
 {% if 'python-virtualenv' in rpm_package['bootstrap_deps'] %}virtualenv -p {{rpm_package['basepython']}} /usr/share/%{name}_%{version}/invirtualenv_deployer{% else %}{{rpm_package['basepython']}} -m venv "/usr/share/%{name}_%{version}/invirtualenv_deployer"
-if [ -e "/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/pip3" ]; then
+if [ ! -e "/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/pip3" ]; then
     export PIP_CMD="pip3"
 fi
-if [ -e "/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/$PIP_CMD" ]; then
+if [ ! -e "/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/$PIP_CMD" ]; then
     /usr/share/%{name}_%{version}/invirtualenv_deployer/bin/python -m ensurepip
 fi
 {% endif %}
