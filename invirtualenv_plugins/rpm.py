@@ -118,7 +118,7 @@ class InvirtualenvRPM(InvirtualenvPlugin):
         if major > 7 or (major == 7 and minor > 6):
             self.config['rpm_package']['bootstrap_deps'] = ['python3', 'python3-pip']  # RHEL 7.7 and newer
         else:
-            self.config['rpm_package']['bootstrap_deps'] = ['python-virtualenv']  # RHEL releases before 7.6
+            self.config['rpm_package']['bootstrap_deps'] = ['python', 'python-pip', 'python-virtualenv']  # RHEL releases before 7.6
 
     def system_requirements_ok(self):
         if find_executable('rpmbuild'):

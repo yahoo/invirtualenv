@@ -103,6 +103,7 @@ class InvirtualenvPlugin(object):
         original_directory = os.getcwd()
         with InTemporaryDirectory():
             tempdir = os.getcwd()
+
             wheel_dir = 'wheels'
             os.makedirs(wheel_dir)
             hashes = self.generate_wheel_packages(wheel_dir)
@@ -146,6 +147,8 @@ class InvirtualenvPlugin(object):
             return {}
         hashes = {}
         with working_dir(wheeldir):
+            logger.debug('Making sure the wheel package is installed')
+            subprocess.check_call([self.pip_cmd, 'install', 'wheel'])
             deps = self.config['pip'].get('deps', []) + ['invirtualenv']
             cmd = self.pip_cmd + ['-q', 'wheel', '-w', '.'] + deps
             logger.debug('Running pip command %r to generate wheel packages', cmd)
