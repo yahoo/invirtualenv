@@ -61,6 +61,7 @@ jobs:
                     $BASE_PYTHON setup.py sdist bdist_wheel
                     echo $PIP_FIND_LINKS
             -   postinstall_utility: |
+                    yum install -y python-pip
                     # Install the version from this repo instead of the invirtualenv from pypi
                     $BASE_PYTHON -m pip install .
         requires: [~commit, ~pr]
