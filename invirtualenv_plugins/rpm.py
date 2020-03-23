@@ -23,7 +23,10 @@ Packager: {{rpm_package['packager']|default('Verizon')}}
 URL: {{global['url']|default('https://github.com/yahoo/invirtualenv')}}
 AutoReqProv: no
 {% if rpm_package['noarch'] %}BuildArch: noarch{% endif %}
-{% if rpm_package['bootstrap_deps'] %}Requires(post): {% for package in rpm_package['bootstrap_deps'] %}{{package}}{{ ", " if not loop.last }}{% endfor %}{% endif %}
+{% if rpm_package['bootstrap_deps'] %}
+# Install deps for {{ global['distro.name()'] }} {{ global['distro.major_version()'] }}.{{global['distro.minor_version()']}}
+Requires(post): {% for package in rpm_package['bootstrap_deps'] %}{{package}}{{ ", " if not loop.last }}{% endfor %}
+{% endif %}
 {% if rpm_package['deps'] %}Requires: {% for package in rpm_package['deps'] %}{{package}}{{ ", " if not loop.last }}{% endfor %}{% endif %}
 
 %description
@@ -97,6 +100,9 @@ class InvirtualenvRPM(InvirtualenvPlugin):
             major = 0
             minor = 0
 
+        self.config['global']['distro.name()'] = distro.name()
+        self.config['global']['distro.major_version()'] = distro.major_version()
+        self.config['global']['distro.minor_version()'] = distro.minor_version()
 
         if major > 7 or (major == 7 and minor > 6):
             self.config['rpm_package']['bootstrap_deps'] = ['python3']  # RHEL 7.7 and newer
