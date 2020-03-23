@@ -116,7 +116,7 @@ class InvirtualenvRPM(InvirtualenvPlugin):
         self.config['global']['distro.minor_version()'] = minor
 
         if major > 7 or (major == 7 and minor > 6):
-            self.config['rpm_package']['bootstrap_deps'] = ['python3']  # RHEL 7.7 and newer
+            self.config['rpm_package']['bootstrap_deps'] = ['python3', 'python3-pip']  # RHEL 7.7 and newer
         else:
             self.config['rpm_package']['bootstrap_deps'] = ['python-virtualenv']  # RHEL releases before 7.6
 
