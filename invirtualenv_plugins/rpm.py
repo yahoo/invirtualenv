@@ -49,7 +49,7 @@ export PATH=$PATH:/opt/python/bin:/usr/local/bin
 
 # Bootstrap a Python virtualenv with the invirtualenv utility deployed in it
 {% if 'python-virtualenv' in rpm_package['bootstrap_deps'] %}virtualenv -p {{rpm_package['basepython']}} /usr/share/%{name}_%{version}/invirtualenv_deployer{% else %}{{rpm_package['basepython']}} -m venv "/usr/share/%{name}_%{version}/invirtualenv_deployer"{% endif %}
-/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/pip install -q --find-links=/usr/share/%{name}_%{version}/wheels invirtualenv configparser
+/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/pip install --find-links=/usr/share/%{name}_%{version}/wheels invirtualenv configparser
 
 # Change into the directory containing this package's invirtualenv deployment configuration and run the invirtualenv_deployer
 # to deploy the application in this rpm package.
