@@ -46,10 +46,18 @@ chmod 755 %{buildroot}/usr/share/%{name}_%{version}/package_scripts/pre_uninstal
 %post
 export RPM_ARG="$1"
 export PATH=$PATH:/opt/python/bin:/usr/local/bin
+export PIP_CMD="pip"
 
 # Bootstrap a Python virtualenv with the invirtualenv utility deployed in it
-{% if 'python-virtualenv' in rpm_package['bootstrap_deps'] %}virtualenv -p {{rpm_package['basepython']}} /usr/share/%{name}_%{version}/invirtualenv_deployer{% else %}{{rpm_package['basepython']}} -m venv "/usr/share/%{name}_%{version}/invirtualenv_deployer"{% endif %}
-/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/pip install --find-links=/usr/share/%{name}_%{version}/wheels invirtualenv configparser
+{% if 'python-virtualenv' in rpm_package['bootstrap_deps'] %}virtualenv -p {{rpm_package['basepython']}} /usr/share/%{name}_%{version}/invirtualenv_deployer{% else %}{{rpm_package['basepython']}} -m venv "/usr/share/%{name}_%{version}/invirtualenv_deployer"
+if [ -e "/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/pip3" ]; then
+    export PIP_CMD="pip3"
+fi
+if [ -e "/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/$PIP_CMD" ]; then
+    /usr/share/%{name}_%{version}/invirtualenv_deployer/bin/python -m ensurepip
+fi
+{% endif %}
+/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/$PIP_CMD install --find-links=/usr/share/%{name}_%{version}/wheels invirtualenv configparser
 
 # Change into the directory containing this package's invirtualenv deployment configuration and run the invirtualenv_deployer
 # to deploy the application in this rpm package.
