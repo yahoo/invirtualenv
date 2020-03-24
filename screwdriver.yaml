@@ -64,6 +64,7 @@ jobs:
                     yum install -y python-pip
                     # Install the version from this repo instead of the invirtualenv from pypi
                     $BASE_PYTHON -m pip install .
+            -   preend: /usr/bin/serviceping --help
         requires: [~commit, ~pr]
 
     verify_rpm_centos7:
@@ -98,6 +99,7 @@ jobs:
             -   postinstall_utility: |
                     # Install the version from this repo instead of the invirtualenv from pypi
                     $BASE_PYTHON -m pip install .
+            -   preend: /usr/bin/serviceping --help
         requires: [~commit, ~pr]
 
     verify_rpm_centos8:
@@ -132,6 +134,7 @@ jobs:
             -   postinstall_utility: |
                     # Install the version from this repo instead of the invirtualenv from pypi
                     $BASE_PYTHON -m pip install .
+            -   preend: /usr/bin/serviceping --help
         requires: [~commit, ~pr]
 
     verify_rpm_fedora:
@@ -166,6 +169,7 @@ jobs:
             - postinstall_utility: |
                 # Install the version from this repo instead of the invirtualenv from pypi
                 $BASE_PYTHON -m pip install .
+            -   preend: /usr/bin/serviceping --help
         requires: [~commit, ~pr]
 
     # Generate a package version to publish
