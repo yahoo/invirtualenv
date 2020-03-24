@@ -43,7 +43,7 @@ jobs:
                     name = serviceping
                     description = invirtualenv utility for deploying python applicatons
                     version = 18.8.1
-                    link_bin_files = True
+                    link_bin_files = False
                     virtualenv_dir = /var/lib/virtualenvs
                     basepython=python
 
