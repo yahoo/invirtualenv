@@ -43,7 +43,7 @@ jobs:
                     name = serviceping
                     description = invirtualenv utility for deploying python applicatons
                     version = 18.8.1
-                    link_bin_files = False
+                    link_bin_files = True
                     virtualenv_dir = /var/lib/virtualenvs
                     basepython=python
 
@@ -52,9 +52,9 @@ jobs:
                         serviceping==18.8.1
 
                     [rpm_package]
-                    basepython=/usr/bin/python
+                    basepython=/usr/bin/python3
                     deps:
-                        python
+                        python34
                     EOF
             -   postupdate_version: |
                     export PIP_FIND_LINKS="file://`pwd`/dist"
