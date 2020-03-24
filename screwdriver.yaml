@@ -45,7 +45,7 @@ jobs:
                     version = 18.8.1
                     link_bin_files = True
                     virtualenv_dir = /var/lib/virtualenvs
-                    basepython=python
+                    basepython=/usr/bin/python3.6
 
                     [pip]
                     deps:
