@@ -55,6 +55,7 @@ jobs:
                     basepython=/usr/bin/python3
                     deps:
                         python34
+                        python34-pip
                     EOF
             -   postupdate_version: |
                     export PIP_FIND_LINKS="file://`pwd`/dist"
