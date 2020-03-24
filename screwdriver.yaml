@@ -45,16 +45,16 @@ jobs:
                     version = 18.8.1
                     link_bin_files = True
                     virtualenv_dir = /var/lib/virtualenvs
-                    basepython=/usr/bin/python3.6
+                    basepython=/usr/bin/python
 
                     [pip]
                     deps:
                         serviceping==18.8.1
 
                     [rpm_package]
-                    basepython=/usr/bin/python3.6
+                    basepython=/usr/bin/python
                     deps:
-                        python36
+                        python
                     EOF
             -   postupdate_version: |
                     export PIP_FIND_LINKS="file://`pwd`/dist"
