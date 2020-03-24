@@ -81,7 +81,7 @@ class InvirtualenvPlugin(object):
             pip_exe = os.path.join(bin_dir, 'pip3')
             if os.path.exists(pip_exe):
                 return [pip_exe]
-            return os.path.join(bin_dir, 'pip')
+            return [os.path.join(bin_dir, 'pip')]
 
     def supported_formats(self):
         """
