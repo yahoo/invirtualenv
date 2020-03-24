@@ -73,7 +73,15 @@ class InvirtualenvPlugin(object):
         if not python_executable:
             python_executable = sys.executable
         bin_dir = os.path.dirname(python_executable)
-        return [python_executable, '-m', 'pip']
+        try:
+            output = subprocess.check_output([python_executable, '-m', 'pip'])  # nosec
+            return [python_executable, '-m', 'pip']
+        except subprocess.CalledProcessError:
+            # Try to work around broken pip module
+            pip_exe = os.path.join(bin_dir, 'pip3')
+            if os.path.exists(pip_exe):
+                return [pip_exe]
+            return [os.path.join(bin_dir, 'pip')]
 
     def supported_formats(self):
         """
@@ -103,6 +111,7 @@ class InvirtualenvPlugin(object):
         original_directory = os.getcwd()
         with InTemporaryDirectory():
             tempdir = os.getcwd()
+
             wheel_dir = 'wheels'
             os.makedirs(wheel_dir)
             hashes = self.generate_wheel_packages(wheel_dir)
@@ -146,8 +155,11 @@ class InvirtualenvPlugin(object):
             return {}
         hashes = {}
         with working_dir(wheeldir):
+            logger.debug('Making sure the wheel package is installed')
+            subprocess.check_call(self.pip_cmd + ['install', '-U', 'pip'])  # nosec
+            subprocess.check_call(self.pip_cmd + ['install', 'wheel'])  # nosec
             deps = self.config['pip'].get('deps', []) + ['invirtualenv']
-            cmd = self.pip_cmd + ['-q', 'wheel', '-w', '.'] + deps
+            cmd = self.pip_cmd + ['wheel', '-w', '.'] + deps
             logger.debug('Running pip command %r to generate wheel packages', cmd)
             subprocess.check_call(cmd)  # nosec
             for filename in os.listdir('.'):

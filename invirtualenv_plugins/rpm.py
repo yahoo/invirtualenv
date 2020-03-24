@@ -23,8 +23,12 @@ Packager: {{rpm_package['packager']|default('Verizon')}}
 URL: {{global['url']|default('https://github.com/yahoo/invirtualenv')}}
 AutoReqProv: no
 {% if rpm_package['noarch'] %}BuildArch: noarch{% endif %}
-{% if rpm_package['bootstrap_deps'] %}Requires(post): {% for package in rpm_package['bootstrap_deps'] %}{{package}}{{ ", " if not loop.last }}{% endfor %}{% endif %}
-{% if rpm_package['deps'] %}Requires: {% for package in rpm_package['deps'] %}{{package}}{{ ", " if not loop.last }}{% endfor %}{% endif %}
+{% if rpm_package['bootstrap_deps'] %}
+# Install deps for {{ global['distro.name()'] }} {{ global['distro.major_version()'] }}.{{global['distro.minor_version()']}}
+Requires(post): {% for package in rpm_package['bootstrap_deps'] %}{{package}}{{ ", " if not loop.last }}{% endfor %}
+{% endif %}{% if rpm_package['deps'] %}
+# RPM Package dependencies
+Requires: {% for package in rpm_package['deps'] %}{{package}}{{ ", " if not loop.last }}{% endfor %}{% endif %}
 
 %description
 {{rpm_package['description']|default('No description')}}
@@ -42,8 +46,19 @@ chmod 755 %{buildroot}/usr/share/%{name}_%{version}/package_scripts/pre_uninstal
 %post
 export RPM_ARG="$1"
 export PATH=$PATH:/opt/python/bin:/usr/local/bin
-{% if 'python-virtualenv' in rpm_package['bootstrap_deps'] %}virtualenv -p {{rpm_package['basepython']}} /usr/share/%{name}_%{version}/invirtualenv_deployer{% else %}{{rpm_package['basepython']}} -m venv "/usr/share/%{name}_%{version}/invirtualenv_deployer"{% endif %}
-/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/pip install -q --find-links=/usr/share/%{name}_%{version}/wheels invirtualenv configparser
+export PIP_CMD="pip"
+
+# Bootstrap a Python virtualenv with the invirtualenv utility deployed in it
+{{rpm_package['basepython']}} -m venv "/usr/share/%{name}_%{version}/invirtualenv_deployer"
+RC="$?"
+if [ "$RC" != "0" ]; then
+    virtualenv -p {{rpm_package['basepython']}} /usr/share/%{name}_%{version}/invirtualenv_deployer
+fi
+
+/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/$PIP_CMD install --find-links=/usr/share/%{name}_%{version}/wheels invirtualenv configparser
+
+# Change into the directory containing this package's invirtualenv deployment configuration and run the invirtualenv_deployer
+# to deploy the application in this rpm package.
 cd /usr/share/%{name}_%{version}
 /usr/share/%{name}_%{version}/invirtualenv_deployer/bin/python /usr/share/%{name}_%{version}/package_scripts/post_install.py
 
@@ -89,19 +104,32 @@ class InvirtualenvRPM(InvirtualenvPlugin):
         gbasepython = self.config['global'].get('basepython', '').strip()
         if not basepython and gbasepython:
             self.config['rpm_package']['basepython'] = gbasepython
+            self.config['global']['basepython'] = gbasepython
 
+        # In some cases distro returns an empty string '' instead of 0, so we can't assume the value returned from
+        # the calls to get that information is always an integer.
         try:
             major = int(distro.major_version())
-            minor = int(distro.minor_version())
         except ValueError:
             major = 0
-            minor = 0
 
+        try:
+            minor = int(distro.minor_version())
+        except ValueError:
+            with open('/etc/system-release') as fh:
+                try:
+                    minor = int(fh.read().strip().split()[3].split('.')[1])
+                except (IndexError, ValueError):
+                    minor = 0
+
+        self.config['global']['distro.name()'] = distro.name()
+        self.config['global']['distro.major_version()'] = major
+        self.config['global']['distro.minor_version()'] = minor
 
         if major > 7 or (major == 7 and minor > 6):
-            self.config['rpm_package']['bootstrap_deps'] = ['python3']  # RHEL 7.7 and newer
+            self.config['rpm_package']['bootstrap_deps'] = ['python3', 'python3-pip']  # RHEL 7.7 and newer
         else:
-            self.config['rpm_package']['bootstrap_deps'] = ['python-virtualenv']  # RHEL releases before 7.6
+            self.config['rpm_package']['bootstrap_deps'] = ['python', 'python-pip', 'python-virtualenv']  # RHEL releases before 7.6
 
     def system_requirements_ok(self):
         if find_executable('rpmbuild'):
