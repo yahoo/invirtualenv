@@ -156,9 +156,10 @@ class InvirtualenvPlugin(object):
         hashes = {}
         with working_dir(wheeldir):
             logger.debug('Making sure the wheel package is installed')
+            subprocess.check_call(self.pip_cmd + ['install', '-U', 'pip'])  # nosec
             subprocess.check_call(self.pip_cmd + ['install', 'wheel'])  # nosec
             deps = self.config['pip'].get('deps', []) + ['invirtualenv']
-            cmd = self.pip_cmd + ['-q', 'wheel', '-w', '.'] + deps
+            cmd = self.pip_cmd + ['wheel', '-w', '.'] + deps
             logger.debug('Running pip command %r to generate wheel packages', cmd)
             subprocess.check_call(cmd)  # nosec
             for filename in os.listdir('.'):
