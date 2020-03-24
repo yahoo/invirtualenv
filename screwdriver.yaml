@@ -176,7 +176,7 @@ jobs:
     generate_version:
         template: python/generate_version
         requires: [
-            validate_test, validate_lint, validate_codestyle, validate_safetydb, validate_security,
+            validate_test, validate_lint, validate_codestyle, validate_dep, validate_security,
             verify_rpm_centos6, verify_rpm_centos7, verify_rpm_centos8, verify_rpm_fedora
         ]
 
