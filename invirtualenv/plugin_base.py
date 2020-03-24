@@ -74,7 +74,7 @@ class InvirtualenvPlugin(object):
             python_executable = sys.executable
         bin_dir = os.path.dirname(python_executable)
         try:
-            output = subprocess.check_output([python_executable, '-m', 'pip'])
+            output = subprocess.check_output([python_executable, '-m', 'pip'])  # nosec
             return [python_executable, '-m', 'pip']
         except subprocess.CalledProcessError:
             # Try to work around broken pip module
