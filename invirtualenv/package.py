@@ -43,7 +43,18 @@ class HTMLLinkParser(HTMLParser):
                     self.href_list.append(value)
 
 
+def get_index_url():
+    index_url = 'https://pypi.python.org/simple'
+    if os.path.exists('/etc/pip.conf'):  # pragma: no cover
+        cfg = ConfigParser.SafeConfigParser({'index-url': index_url})
+        cfg.read('/etc/pip.conf')
+        index_url = cfg.get('global', 'index-url')
+    return index_url.rstrip('/')
+
+
 def package_files(package: str, pypi_url: str='https://pypi.org') -> List[str]:
+    if not pypi_url:
+        pypi_url = get_index_url()
     name = pkg_resources.safe_name(package)
     url = pypi_url + '/simple/' + package + '/'
     parser = HTMLLinkParser()
@@ -62,6 +73,9 @@ def package_files(package: str, pypi_url: str='https://pypi.org') -> List[str]:
 
 
 def package_type_versions(package: str, pypi_url: str='https://pypi.org', require_strict: bool=False) -> Dict[str, list]:
+    if not pypi_url:
+        pypi_url = get_index_url()
+
     package_releases: DefaultDict[str, List] = defaultdict(lambda: [], {'tar.gz': [], 'whl': [], 'zip': []})
     name = pkg_resources.safe_name(package)
 
@@ -94,6 +108,9 @@ def package_type_versions(package: str, pypi_url: str='https://pypi.org', requir
 
 
 def package_versions(package: str, pypi_url: str='https://pypi.org', require_strict: bool=False) -> List[str]:
+    if not pypi_url:
+        pypi_url = get_index_url()
+
     all_versions = set()
     for key, value in package_type_versions(package, pypi_url=pypi_url, require_strict=require_strict).items():
         all_versions.update(value)
@@ -103,6 +120,9 @@ def package_versions(package: str, pypi_url: str='https://pypi.org', require_str
 def existing_package(
         package: str, version: str, package_types: Optional[List[str]]=None, pypi_url: str='https://pypi.org'
 ) -> bool:
+    if not pypi_url:
+        pypi_url = get_index_url()
+
     if not package_types:  # pragma: no cover
         package_types = ['tar.gz', 'whl', 'zip']
 
