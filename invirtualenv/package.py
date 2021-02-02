@@ -5,21 +5,137 @@
 """
 Functions for managing packaging
 """
+from collections import defaultdict
+from distutils.version import LooseVersion, StrictVersion
+from html.parser import HTMLParser
+import logging
 import os
 import platform
-from defusedxml import ElementTree
 import subprocess  # nosec
+from typing import DefaultDict, Dict, List, Optional
 
 try:  # pragma: no cover
     import configparser as ConfigParser
 except ImportError:  # pragma: no cover
     import ConfigParser
 
+from defusedxml import ElementTree
+import pkg_resources
 import requests
 
 from .exceptions import BuildException
 from .utility import display_header
 from distutils.version import LooseVersion
+
+
+logger = logging.getLogger(__name__)
+
+
+class HTMLLinkParser(HTMLParser):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.href_list = []
+
+    def handle_starttag(self, tag, attrs):
+        if tag == 'a':
+            for name, value in attrs:
+                if name == "href":
+                    self.href_list.append(value)
+
+
+def get_index_url():
+    index_url = 'https://pypi.python.org/simple'
+    if os.path.exists('/etc/pip.conf'):  # pragma: no cover
+        cfg = ConfigParser.SafeConfigParser({'index-url': index_url})
+        cfg.read('/etc/pip.conf')
+        index_url = cfg.get('global', 'index-url')
+    return index_url.rstrip('/')
+
+
+def package_files(package: str, pypi_url: str='https://pypi.org') -> List[str]:
+    if not pypi_url:
+        pypi_url = get_index_url()
+    name = pkg_resources.safe_name(package)
+    url = pypi_url + '/simple/' + package + '/'
+    parser = HTMLLinkParser()
+
+    # Stream the index
+    req = requests.get(url, stream=True)
+    for line in req.iter_lines():
+        line = line.decode(errors='ignore')
+        parser.feed(line)
+
+    files = []
+    for filename in parser.href_list:
+        filename = os.path.basename(filename).split('#')[0]
+        files.append(filename)
+    return files
+
+
+def package_type_versions(package: str, pypi_url: str='https://pypi.org', require_strict: bool=False) -> Dict[str, list]:
+    if not pypi_url:
+        pypi_url = get_index_url()
+
+    package_releases: DefaultDict[str, List] = defaultdict(lambda: [], {'tar.gz': [], 'whl': [], 'zip': []})
+    name = pkg_resources.safe_name(package)
+
+    sorted_key = StrictVersion if require_strict else LooseVersion
+
+    for filename in package_files(package=package, pypi_url=pypi_url):
+        # Separate the releases by extension
+        for ext in package_releases.keys():  # pragma: no cover
+            if filename.endswith('.' + ext):
+                filename = filename[len(name) +1 :-(len(ext) + 1)]
+                if ext == 'whl':
+                    split_name = filename.split('-')
+                    filename = '-'.join(split_name[:-3])
+                    tags = '-'.join(split_name[-3:])
+                    package_releases[f'{ext}-{tags}'].append(filename)
+                package_releases[ext].append(filename)
+                break
+
+    # Sort the results
+    for value in package_releases.values():
+        try:
+            sorted(value, key=sorted_key)
+        except ValueError as error:
+            if not require_strict:
+                logger.info(f'Invalid package version {value!r} found in the index using strict versioning, falling back to loose versioning')
+                sorted( value, key=LooseVersion)
+            else:
+                raise error
+    return package_releases
+
+
+def package_versions(package: str, pypi_url: str='https://pypi.org', require_strict: bool=False) -> List[str]:
+    if not pypi_url:
+        pypi_url = get_index_url()
+
+    all_versions = set()
+    for key, value in package_type_versions(package, pypi_url=pypi_url, require_strict=require_strict).items():
+        all_versions.update(value)
+    return list(all_versions)
+
+
+def existing_package(
+        package: str, version: str, package_types: Optional[List[str]]=None, pypi_url: str='https://pypi.org'
+) -> bool:
+    if not pypi_url:
+        pypi_url = get_index_url()
+
+    if not package_types:  # pragma: no cover
+        package_types = ['tar.gz', 'whl', 'zip']
+
+    package_releases = package_type_versions(package, pypi_url=pypi_url)
+
+    for package_type in package_types:
+        if package_type not in package_releases.keys():
+            continue
+        versions = list(package_releases[package_type])
+        if version in versions:
+            return True
+
+    return False
 
 
 def package_scripts_directory():
@@ -59,52 +175,6 @@ def strip_from_end(text, suffix):
     if not text.endswith(suffix):
         return text
     return text[:len(text)-len(suffix)]
-
-
-def package_versions(package, pypi_url=None):
-    """
-    Get all versions of a package from pypi
-
-    Parameters
-    ----------
-    package : str
-        The python package to search for
-
-    pypi_url : str, optional
-        The pypi URL to send the request to, defaults to the production
-        pypi endpoint.
-
-    Returns
-    -------
-    list
-        A list of all packages found on pypi.  The list will be
-        empty if there were no versions found.
-    """
-    if pypi_url:  # pragma: no cover
-        url = pypi_url
-    else:
-        index_url = 'https://pypi.python.org/simple'
-        if os.path.exists('/etc/pip.conf'):  # pragma: no cover
-            cfg = ConfigParser.SafeConfigParser({'index-url': index_url})
-            cfg.read('/etc/pip.conf')
-            index_url = cfg.get('global', 'index-url')
-        url = '%s/%s/' % (index_url, package)
-    versions = []
-    response = requests.get(url)
-    if response.status_code in [404]:  # pragma: no cover
-        return []
-    result = response.text
-    tree = ElementTree.fromstring(result)
-    for element in tree.findall('.//a/[@rel="internal"]'):
-        possible_package = element.text
-        if possible_package.endswith('.tar.gz'):
-            possible_package = strip_from_end(possible_package, '.tar.gz')
-            possible_package = possible_package.split('-')
-            version = possible_package[-1]
-            versions.append(version)
-
-    versions.sort(key=LooseVersion)
-    return versions
 
 
 def latest_package_version(package):

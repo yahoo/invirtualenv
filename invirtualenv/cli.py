@@ -104,7 +104,7 @@ def create_package_command(args):
     with InTemporaryDirectory():
         with open(args.deploy_conf, 'w') as deploy_conf_handle:
             deploy_conf_handle.write(deploy_config_contents)
-        package_file = create_package(args.package_type)
+        package_file = create_package(args.package_type, source_dir=orig_directory)
         if package_file:
             dest_package_file = os.path.join(orig_directory, os.path.basename(package_file))
             if os.path.exists(package_file):
@@ -129,7 +129,6 @@ def list_plugins_command(args):
 
 
 def main(test=False):
-    logging.basicConfig(level=logging.INFO)
     args = parse_cli_arguments()
 
     rc = 0

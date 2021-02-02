@@ -209,7 +209,7 @@ def create_package_configuration(package_type):
             return plugin().render_template_with_config()
 
 
-def create_package(package_type):
+def create_package(package_type, source_dir=''):
     """
     Create a package of a specific package type
 
@@ -223,9 +223,11 @@ def create_package(package_type):
     package_type : str
         The package type to create a package for
 
+    source_dir: str, optional
+        The source_dir for the plugin
     """
     for plugin in installed_plugins():
-        package_name = plugin().create_package(package_type)
+        package_name = plugin(source_dir=source_dir).create_package(package_type)
         if package_name:
             return package_name
 

@@ -1,10 +1,12 @@
 import os
 import json
 import logging
+import shlex
+import shutil
 import subprocess
-import pkgutil
 
 import distro
+import pkgutil
 
 from invirtualenv.plugin_base import InvirtualenvPlugin
 from invirtualenv.utility import find_executable
@@ -42,6 +44,9 @@ cp {{rpm_package['cwd']}}/post_install.py %{buildroot}/usr/share/%{name}_%{versi
 cp {{rpm_package['cwd']}}/pre_uninstall.py %{buildroot}/usr/share/%{name}_%{version}/package_scripts/pre_uninstall.py
 chmod 755 %{buildroot}/usr/share/%{name}_%{version}/package_scripts/post_install.py
 chmod 755 %{buildroot}/usr/share/%{name}_%{version}/package_scripts/pre_uninstall.py
+{% for source, dest in rpm_package['file_tuples'] %}mkdir -p $(dirname %{buildroot}{{dest[-1]}})
+cp -a {{rpm_package['source_dir']}}/{{source}} %{buildroot}{{dest[-1]}}
+{% endfor %}
 
 %post
 export RPM_ARG="$1"
@@ -72,12 +77,13 @@ rm -rf /usr/share/%{name}_%{version}
 %files
 %defattr(0755, root, root, 0755)
 /usr/share/%{name}_%{version}/*
-{% if rpm_package['files'] %}
-{% endif %}
+{% for source, dest in rpm_package['file_tuples'] %}{% for elem in dest %}{{elem}} {% endfor %}
+{% endfor %}
 """
 
 RPM_CONFIG_DEFAULT = """[rpm_package]
 deps:
+files:
 """
 
 class InvirtualenvRPM(InvirtualenvPlugin):
@@ -87,6 +93,7 @@ class InvirtualenvRPM(InvirtualenvPlugin):
     config_types = {
         'rpm_package': {
             'deps': list,
+            'files': list,
         }
     }
     default_config_filename = 'invirtualenv.spec'
@@ -95,6 +102,7 @@ class InvirtualenvRPM(InvirtualenvPlugin):
         # Make sure the configuration is sane
         # self.config['rpm_package']['deps'].append('invirtualenv')
         self.config['rpm_package']['cwd'] = os.getcwd()
+        self.config['rpm_package']['source_dir'] = self.source_dir
         self.config['rpm_package']['noarch'] = self.noarch
         description = self.config['global'].get('description', '').strip()
         if not description:
@@ -131,6 +139,43 @@ class InvirtualenvRPM(InvirtualenvPlugin):
         else:
             self.config['rpm_package']['bootstrap_deps'] = ['python', 'python-pip', 'python-virtualenv']  # RHEL releases before 7.6
 
+
+        # Parse the source and dest arguments in the files into a 2 item tuple
+        self.config['rpm_package']['file_tuples'] = []
+        for fileline in self.config['rpm_package']['files']:
+            fileline = shlex.split(fileline)
+            file_source_dest = fileline
+            if len(fileline) == 1:
+                file_source_dest = ('', fileline[0],)
+            elif len(fileline) > 2:
+                file_source_dest = (fileline[0], ' '.join(fileline[1:]), )
+            if file_source_dest[1].startswith('%'):
+                # The destination contains a directive, need to split it out
+                temp = file_source_dest[1].split(')')
+                directive = f'{temp[0]})'
+                dest = ')'.join(temp[1:]).lstrip()
+                file_source_dest[1] = [directive, dest]
+            else:
+                file_source_dest[1] = [file_source_dest[1]]
+
+            self.config['rpm_package']['file_tuples'].append(file_source_dest)
+            print(f'file source dest: {file_source_dest}')
+
+    def copy_files_to_tempdir(self, tempdir):
+        if 'file_tuples' not in self.config['rpm_package'].keys() or not self.config['rpm_package']['file_tuples']:
+            return
+
+        for source, dest in self.config['rpm_package']['file_tuples']:
+            full_source = source
+            full_dest = os.path.join(tempdir, dest[-1])
+            if not source.startswith('/'):
+                full_source = os.path.join(self.source_dir, source)
+            if not os.path.exists(full_source):
+                raise FileNotFoundError('[rpm_page] files entry %r not found' % full_source)
+            print('copying', full_source, full_dest)
+            os.makedirs(os.path.dirname(full_dest), exist_ok=True)
+            shutil.copyfile(full_source, full_dest)
+
     def system_requirements_ok(self):
         if find_executable('rpmbuild'):
             return True
@@ -146,12 +191,13 @@ class InvirtualenvRPM(InvirtualenvPlugin):
                 script_handle.write(pkgutil.get_data('invirtualenv_plugins', script))
 
         logger.debug('Config')
-        logger.debug(json.dumps(self.config, indent=4))
+        logger.debug(json.dumps(self.config, indent=4, sort_keys=True))
         logger.debug('Spec')
         logger.debug(self.render_template_with_config())
         logger.debug('Deploy.conf')
         logger.debug(open('deploy.conf').read())
         print(f'CWD: {os.getcwd()}')
+        print(f'source_dir: {self.source_dir}')
         os.system('ls -lR')
         with open('package.spec', 'w') as spec_handle:
             spec_handle.write(self.render_template_with_config())

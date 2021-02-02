@@ -82,4 +82,4 @@ def InTemporaryDirectory():  # pylint: disable=C0103
     """
     with TemporaryDirectory() as tempdir:
         with working_dir(tempdir):
-            yield
+            yield tempdir
