@@ -28,9 +28,10 @@ class InvirtualenvPlugin(object):
     hash = None  # PIP hash algorithm to use, can be sha256, sha384, sha512 or None (no hashing)
     noarch = True
 
-    def __init__(self, config_file='deploy.conf'):
+    def __init__(self, config_file='deploy.conf', source_dir=''):
         self.config_file = config_file
         self.config = get_configuration_dict(configuration=config_file)
+        self.source_dir = source_dir if source_dir else os.getcwd()
         self.loaded_configuration = get_configuration(configuration=config_file)
         self.add_plugin_configuration()
 
@@ -96,6 +97,12 @@ class InvirtualenvPlugin(object):
             return self.package_formats
         return []
 
+    def copy_files_to_tempdir(self, tempdir):
+        """
+        Copy any files from the sourcedir into the tempdir for package generation
+        """
+        pass
+
     def create_package(self, package_type):
         """
         Generate a package of the specified type
@@ -109,8 +116,9 @@ class InvirtualenvPlugin(object):
             return None
 
         original_directory = os.getcwd()
-        with InTemporaryDirectory():
-            tempdir = os.getcwd()
+
+        with InTemporaryDirectory() as tempdir:
+            self.copy_files_to_tempdir(tempdir)
 
             wheel_dir = 'wheels'
             os.makedirs(wheel_dir)

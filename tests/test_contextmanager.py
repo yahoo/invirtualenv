@@ -1,3 +1,4 @@
+import os
 import unittest
 import invirtualenv.contextmanager
 
@@ -13,3 +14,8 @@ class TestContextmanager(unittest.TestCase):
                     fh.write('changed')
                 self.assertEqual('changed', open('testfile').read())
             self.assertEqual('original', open('testfile').read())
+
+    def test__InTemporaryDir(self):
+        with invirtualenv.contextmanager.InTemporaryDirectory() as tempdir:
+            self.assertIsInstance(tempdir, str)
+            self.assertTrue(os.path.exists(tempdir))
