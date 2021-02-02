@@ -129,7 +129,6 @@ def list_plugins_command(args):
 
 
 def main(test=False):
-    logging.basicConfig(level=logging.DEBUG)
     args = parse_cli_arguments()
 
     rc = 0
