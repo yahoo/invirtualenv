@@ -157,61 +157,6 @@ def strip_from_end(text, suffix):
     return text[:len(text)-len(suffix)]
 
 
-def package_versions_old(package, pypi_url=None):
-    """
-    Get all versions of a package from pypi
-
-    Parameters
-    ----------
-    package : str
-        The python package to search for
-
-    pypi_url : str, optional
-        The pypi URL to send the request to, defaults to the production
-        pypi endpoint.
-
-    Returns
-    -------
-    list
-        A list of all packages found on pypi.  The list will be
-        empty if there were no versions found.
-    """
-    package_extensions = ['.tar.gz', '.zip', '.whl']
-    if pypi_url:  # pragma: no cover
-        url = pypi_url
-    else:
-        index_url = 'https://pypi.python.org/simple'
-        if os.path.exists('/etc/pip.conf'):  # pragma: no cover
-            cfg = ConfigParser.SafeConfigParser({'index-url': index_url})
-            cfg.read('/etc/pip.conf')
-            index_url = cfg.get('global', 'index-url')
-        url = '%s/%s/' % (index_url, package)
-    versions = []
-    response = requests.get(url)
-    if response.status_code in [404]:  # pragma: no cover
-        return []
-    result = response.text
-    print(os.linesep.join(result.split(os.linesep)[:10]))
-    tree = ElementTree.fromstring(result)
-    xpath_selector = './/a/[@rel="internal"]'
-    xpath_selector = ".//a/[@href[contains('|tar.gz|whl|zip')]"
-    for element in tree.findall(xpath_selector):
-        possible_package = element.text
-        print('possible package', possible_package)
-        for extension in package_extensions:
-            if extension in possible_package:
-                if possible_package.endswith(extension):
-                    possible_package = strip_from_end(possible_package, extension)
-                    possible_package = possible_package.split('-')
-                    version = possible_package[-1]
-                    versions.append(version)
-                    break
-
-    versions.sort(key=LooseVersion)
-    print('Versions:', versions)
-    return versions
-
-
 def latest_package_version(package):
     """
     Get the latest version number for a package
