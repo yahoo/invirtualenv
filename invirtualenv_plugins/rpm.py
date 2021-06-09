@@ -184,6 +184,7 @@ class InvirtualenvRPM(InvirtualenvPlugin):
 
     def run_package_command(self, package_hashes, wheel_dir='wheels'):
         self.config['rpm_package']['cwd'] = os.getcwd()
+        self.config['rpm_package']['noarch'] = self.noarch
 
         # Get the packaging script
         for script in ['rpm_scripts/post_install.py', 'rpm_scripts/pre_uninstall.py']:
