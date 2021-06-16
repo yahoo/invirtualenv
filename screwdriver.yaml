@@ -23,6 +23,8 @@ jobs:
     # Check for use of package dependencies that have security issues
     validate_dep:
         template: python/validate_safety
+        steps:
+            - postinit_os: $BASE_PYTHON -m pip install --upgrade pip
         requires: [~commit, ~pr]
 
     # Check code for common security issues
