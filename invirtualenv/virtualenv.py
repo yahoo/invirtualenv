@@ -325,6 +325,8 @@ def install_requirements(
         except subprocess.CalledProcessError as error:
             logger.exception('PIP install operation failed')
             print(error.output.decode())
+            sys.stdout.flush()
+            sys.stderr.flush()
             raise BuildException('PIP install operation failed')
 
     after_binfiles_filename = os.path.join(virtualenv, 'conf/binfiles_postdeploy.json')

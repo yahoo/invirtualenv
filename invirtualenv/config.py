@@ -183,6 +183,7 @@ def generate_parsed_config_file(source=None, dest=None):
     template = Template(config_data)
     result = template.render(**os.environ)
 
+    logging.debug('parsed_config_file', result)
     if not dest:
         with tempfile.NamedTemporaryFile(
             delete=False, suffix='.conf'
