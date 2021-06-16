@@ -196,11 +196,11 @@ class InvirtualenvPlugin(object):
                         cmd += ['-a', self.hash]
                     cmd += [filename]
                     logger.debug('Running pip command %r to generate package hash for %r', cmd, filename)
-                    hash_result = subprocess.check_output(cmd).decode()
+                    hash_result = subprocess.check_output(cmd).decode()  # nosec
                     if file_wheel_name and file_wheel_version:
                         logger.debug(f"file_wheel_name==file_wheel_version")
-                        hashes[f'{file_wheel_name}=={file_wheel_version}'] = '='.join(hash_result.split(os.linesep)[1].split('=')[1:])  # nosec
-                        logger.debug('Got requirements line %r', hashes[f'{file_wheel_name}=={file_wheel_version}'])
+                        hashes['{file_wheel_name}=={file_wheel_version}'.format(**locals())] = '='.join(hash_result.split(os.linesep)[1].split('=')[1:])
+                        logger.debug('Got requirements line %r', hashes['{file_wheel_name}=={file_wheel_version}'.format(**locals())])
                     else:
                         hashes[filename] = '='.join(hash_result.split(os.linesep)[1].split('=')[1:])  # nosec
                         logger.debug('Got requirements line %r', hashes[filename])
@@ -233,7 +233,11 @@ class InvirtualenvPlugin(object):
 
             deps = []
             for package_name, package_hash in hashes.items():
-                deps.append('{package_name} --hash={package_hash}'.format(package_name=package_name, package_hash=package_hash))
+                print(self.config['global'])
+                if self.config['global'].get('use_local_wheels', 'false').lower() in ['1', 'true', 'yes', 'on']:
+                    deps.append('{package_name} --hash={package_hash}'.format(package_name=package_name, package_hash=package_hash))
+                else:
+                    deps.append(package_name)
             self.config['pip']['deps'] = deps
 
             if self.hash:
