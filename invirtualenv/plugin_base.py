@@ -29,6 +29,7 @@ class InvirtualenvPlugin(object):
     noarch = True
 
     def __init__(self, config_file='deploy.conf', source_dir=''):
+        self._wheel_hashes = {}
         self.config_file = config_file
         self.config = get_configuration_dict(configuration=config_file)
         self.source_dir = source_dir if source_dir else os.getcwd()
@@ -132,6 +133,8 @@ class InvirtualenvPlugin(object):
                 self.loaded_configuration['pip']['deps'] = '\n'.join(deps)
             with open('deploy.conf.unparsed', 'w') as deploy_conf_handle:
                 self.loaded_configuration.write(deploy_conf_handle)
+            with open('deploy.conf.unparsed') as fh:
+                logger.debug('deploy.conf.unparsed', fh.read())
             generate_parsed_config_file('deploy.conf.unparsed', 'deploy.conf')
             package = self.run_package_command(hashes, wheel_dir=wheel_dir)  # pylint: disable=E1128,E1111
             if package and os.path.exists(package):
@@ -169,18 +172,40 @@ class InvirtualenvPlugin(object):
             deps = self.config['pip'].get('deps', []) + ['invirtualenv']
             cmd = self.pip_cmd + ['wheel', '-w', '.'] + deps
             logger.debug('Running pip command %r to generate wheel packages', cmd)
-            subprocess.check_call(cmd)  # nosec
+            try:
+                output = subprocess.check_output(cmd, stderr=subprocess.STDOUT).decode()  # nosec
+            except subprocess.CalledProcessError as error:
+                logger.exception('Exception occurred while generating wheel packages')
+                if error.stdout:
+                    logger.error(error.stdout.decode())
+                if error.stderr:
+                    logger.error(error.stderr.decode())
+                raise
             for filename in os.listdir('.'):
                 if filename.endswith('.whl'):
-                    if not filename.endswith('none-any.whl'):
+                    split_filename = os.path.basename(filename).split('-')
+                    file_wheel_name = filename
+                    file_wheel_version = None
+                    if len(split_filename) > 2:
+                        file_wheel_name = split_filename[0]
+                        file_wheel_version = split_filename[1]
+                    if self.noarch and not filename.endswith('none-any.whl'):
                         self.noarch = False
                     cmd = self.pip_cmd + ['hash']
                     if self.hash:
                         cmd += ['-a', self.hash]
                     cmd += [filename]
                     logger.debug('Running pip command %r to generate package hash for %r', cmd, filename)
-                    hashes[filename] = '='.join(subprocess.check_output(cmd).decode().split(os.linesep)[1].split('=')[1:])  # nosec
-                    logger.debug('Got requirements line %r', hashes[filename])
+                    hash_result = subprocess.check_output(cmd).decode()
+                    if file_wheel_name and file_wheel_version:
+                        logger.debug(f"file_wheel_name==file_wheel_version")
+                        hashes[f'{file_wheel_name}=={file_wheel_version}'] = '='.join(hash_result.split(os.linesep)[1].split('=')[1:])  # nosec
+                        logger.debug('Got requirements line %r', hashes[f'{file_wheel_name}=={file_wheel_version}'])
+                    else:
+                        hashes[filename] = '='.join(hash_result.split(os.linesep)[1].split('=')[1:])  # nosec
+                        logger.debug('Got requirements line %r', hashes[filename])
+        self._wheel_hashes = hashes
+        self.add_plugin_configuration()
         return hashes
 
     def add_plugin_configuration(self):
@@ -190,8 +215,30 @@ class InvirtualenvPlugin(object):
         """
         pass
 
-    def render_template_with_config(self, template_str=None):
+    def render_template_with_config(self, template_str=''):
+
         if not template_str:
             template_str = self.package_template
-            template = Template(template_str)
-            return template.render(self.config)
+
+        original_directory = os.getcwd()
+
+        with InTemporaryDirectory() as tempdir:
+            self.copy_files_to_tempdir(tempdir)
+            if self._wheel_hashes:
+                hashes = self._wheel_hashes
+            else:
+                wheel_dir = 'wheels'
+                os.makedirs(wheel_dir, exist_ok=True)
+                hashes = self.generate_wheel_packages(wheel_dir)
+
+            deps = []
+            for package_name, package_hash in hashes.items():
+                deps.append('{package_name} --hash={package_hash}'.format(package_name=package_name, package_hash=package_hash))
+            self.config['pip']['deps'] = deps
+
+            if self.hash:
+                self.loaded_configuration['pip']['deps'] = '\n'.join(deps)
+
+        print('Config:', self.config)
+        template = Template(template_str)
+        return template.render(self.config)

@@ -82,16 +82,19 @@ rm -rf /usr/share/%{name}_%{version}
 """
 
 RPM_CONFIG_DEFAULT = """[rpm_package]
+bin_dir =
 deps:
 files:
 """
 
 class InvirtualenvRPM(InvirtualenvPlugin):
+    hash = 'sha256'
     package_formats = ['rpm']
     package_template = SPEC_TEMPLATE
     config_default = RPM_CONFIG_DEFAULT
     config_types = {
         'rpm_package': {
+            'bin_dir': str,
             'deps': list,
             'files': list,
         }
@@ -159,7 +162,6 @@ class InvirtualenvRPM(InvirtualenvPlugin):
                 file_source_dest[1] = [file_source_dest[1]]
 
             self.config['rpm_package']['file_tuples'].append(file_source_dest)
-            print(f'file source dest: {file_source_dest}')
 
     def copy_files_to_tempdir(self, tempdir):
         if 'file_tuples' not in self.config['rpm_package'].keys() or not self.config['rpm_package']['file_tuples']:
@@ -172,7 +174,7 @@ class InvirtualenvRPM(InvirtualenvPlugin):
                 full_source = os.path.join(self.source_dir, source)
             if not os.path.exists(full_source):
                 raise FileNotFoundError('[rpm_page] files entry %r not found' % full_source)
-            print('copying', full_source, full_dest)
+            logger.debug('copying', full_source, full_dest)
             os.makedirs(os.path.dirname(full_dest), exist_ok=True)
             shutil.copyfile(full_source, full_dest)
 
