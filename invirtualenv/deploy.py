@@ -274,7 +274,7 @@ def build_deploy_virtualenv(arguments=None, configuration=None, update_existing=
             )
 
     # By default don't use local wheels.
-    use_local_wheels = config['global'].getboolean('use_local_wheels', False)
+    use_local_wheels = config['global'].get('use_local_wheels', 'false').lower() in ['1', 'true', 'yes', 'on']
 
     if verbose:
         display_header('Building virtualenv')
