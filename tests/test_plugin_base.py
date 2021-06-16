@@ -26,7 +26,7 @@ class TestPluginBase(unittest.TestCase):
             plugin = InvirtualenvPlugin()
             plugin.hash = 'sha512'
             hashes = plugin.generate_wheel_packages(wheeldir=os.getcwd())
-            packages = [filename.split('-')[0] for filename in hashes.keys()]
+            packages = [filename.split('=')[0] for filename in hashes.keys()]
             self.assertGreater(len(hashes), 0)
             self.assertIn('invirtualenv', packages)
             self.assertIn('sha512:', list(hashes.values())[0])
