@@ -24,7 +24,7 @@ jobs:
     validate_dep:
         template: python/validate_safety
         steps:
-            - postinit_os: $BASE_PYTHON -m pip install --upgrade pip
+            - validate_code: pypirun --upgrade_pip safety,. safety check --json -o safetydb.json || true
         requires: [~commit, ~pr]
 
     # Check code for common security issues
