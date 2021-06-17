@@ -60,7 +60,11 @@ if [ "$RC" != "0" ]; then
     virtualenv -p {{rpm_package['basepython']}} /usr/share/%{name}_%{version}/invirtualenv_deployer
 fi
 
-/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/$PIP_CMD install --find-links=/usr/share/%{name}_%{version}/wheels invirtualenv configparser
+/usr/share/%{name}_%{version}/invirtualenv_deployer/bin/$PIP_CMD install --no-index --find-links=/usr/share/%{name}_%{version}/wheels invirtualenv configparser
+RC="$?"
+if [ "$RC" != "0" ]; then
+    /usr/share/%{name}_%{version}/invirtualenv_deployer/bin/$PIP_CMD install --find-links=/usr/share/%{name}_%{version}/wheels invirtualenv configparser
+fi
 
 # Change into the directory containing this package's invirtualenv deployment configuration and run the invirtualenv_deployer
 # to deploy the application in this rpm package.

@@ -290,8 +290,8 @@ def install_requirements(
         # packages from pypi we will be installing wheels from local dir.
         package_data_dir_name = os.path.basename(virtualenv)
         package_data_dir = os.path.join("/usr/share/", package_data_dir_name)
-        wheels_dir = os.path.join(package_data_dir, "wheels")
-        extra_pip_args += ['--find-links', wheels_dir]
+        wheels_dir = os.path.join(package_data_dir, "wheels/")
+        extra_pip_args += ['--find-links', wheels_dir, '--prefer-binary']
 
     user_uid = None
     user_gid = None
@@ -311,7 +311,7 @@ def install_requirements(
         command = [
             os.path.join(virtualenv_bin, 'pip'),
             'install',
-            '--cache-dir', pip_cache_dir,
+            # '--cache-dir', pip_cache_dir,
             '-r', requirement,
         ] + extra_pip_args
         logger.debug('Running command: %s', ' '.join(command))

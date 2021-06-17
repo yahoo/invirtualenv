@@ -11,6 +11,7 @@ import shutil
 import subprocess  # nosec
 import sys
 from jinja2 import Template
+from . import __version__
 from .config import get_configuration_dict, get_configuration, generate_parsed_config_file
 from .contextmanager import InTemporaryDirectory, working_dir
 from .utility import find_executable, update_recursive, csv_list
@@ -165,6 +166,7 @@ class InvirtualenvPlugin(object):
         if not self.config['pip'].get('deps'):
             return {}
         hashes = {}
+
         with working_dir(wheeldir):
             logger.debug('Making sure the wheel package is installed')
             subprocess.check_call(self.pip_cmd + ['install', '-U', 'pip'])  # nosec
@@ -175,12 +177,22 @@ class InvirtualenvPlugin(object):
             try:
                 output = subprocess.check_output(cmd, stderr=subprocess.STDOUT).decode()  # nosec
             except subprocess.CalledProcessError as error:
-                logger.exception('Exception occurred while generating wheel packages')
+                logger.warning('Exception occurred while generating wheel packages, downloading source packages')
                 if error.stdout:
                     logger.error(error.stdout.decode())
                 if error.stderr:
                     logger.error(error.stderr.decode())
-                raise
+                cmd = self.pip_cmd + ['download', '-d', '.'] + deps
+                logger.debug('Running pip command %r to download missing packages', cmd)
+                try:
+                    output = subprocess.check_output(cmd, stderr=subprocess.STDOUT).decode()  # nosec
+                except subprocess.CalledProcessError as error:
+                    logger.warning('Exception occurred while downloading source packages')
+                    if error.stdout:
+                        logger.error(error.stdout.decode())
+                    if error.stderr:
+                        logger.error(error.stderr.decode())
+                    raise
             for filename in os.listdir('.'):
                 if filename.endswith('.whl'):
                     split_filename = os.path.basename(filename).split('-')
@@ -233,7 +245,6 @@ class InvirtualenvPlugin(object):
 
             deps = []
             for package_name, package_hash in hashes.items():
-                print(self.config['global'])
                 if self.config['global'].get('use_local_wheels', 'false').lower() in ['1', 'true', 'yes', 'on']:
                     deps.append('{package_name} --hash={package_hash}'.format(package_name=package_name, package_hash=package_hash))
                 else:
@@ -243,6 +254,5 @@ class InvirtualenvPlugin(object):
             if self.hash:
                 self.loaded_configuration['pip']['deps'] = '\n'.join(deps)
 
-        print('Config:', self.config)
         template = Template(template_str)
         return template.render(self.config)
