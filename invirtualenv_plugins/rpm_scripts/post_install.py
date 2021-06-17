@@ -61,8 +61,11 @@ def main():
 
     logger.debug('Using the following deploy.conf: %s' % open('deploy.conf').read())
     venv_directory = None
+    verbose = log_level == logging.DEBUG
+    if get_config_flag('pip', 'no_index'):
+        os.environ['PIP_NO_INDEX'] = "true"
     try:
-        venv_directory = build_deploy_virtualenv(update_existing=True)
+        venv_directory = build_deploy_virtualenv(update_existing=True, verbose=verbose)
         update_config(venv_directory)
     except Exception:
         print('Unable to create the python virtualenv', file=sys.stderr)
