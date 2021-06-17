@@ -125,9 +125,9 @@ jobs:
                     serviceping==18.8.1
 
                 [rpm_package]
-                basepython=/usr/bin/python3
+                basepython=/usr/bin/python3.8
                 deps:
-                    python3
+                    python38
                 EOF
             - postupdate_version: |
                 export PIP_FIND_LINKS="file://`pwd`/dist"
