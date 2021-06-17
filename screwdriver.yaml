@@ -2,7 +2,9 @@ version: 4
 shared:
     environment:
         CHANGELOG_FILENAME: docs/changelog.md
+        INVIRTUALENV_LOG_LEVEL: debug
         PACKAGE_DIRECTORY: invirtualenv
+        RPM_SCRIPTLET_DEBUG: 'True'
 
 jobs:
     # Run the unittests
