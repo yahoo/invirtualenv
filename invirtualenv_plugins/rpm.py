@@ -54,7 +54,7 @@ export PATH=$PATH:/opt/python/bin:/usr/local/bin
 export PIP_CMD="pip"
 
 # Bootstrap a Python virtualenv with the invirtualenv utility deployed in it
-print('Attempting to build bootstrap venv using {{rpm_package['base_python']}}')
+echo "Attempting to build bootstrap venv using {{rpm_package['basepython']}}"
 if [ ! -e "{{rpm_package['basepython']}}" ]; then
     echo "The python_interpreter was not found"
 fi
