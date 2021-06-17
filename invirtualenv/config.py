@@ -234,8 +234,8 @@ def parse_arguments(configuration=None):
         '--python',
         '-p',
         default=config['global']['basepython'],
-        help='The Python interpreter to use, e.g., --python=python3.5 '
-             'will use the python3.5 interpreter to create the new '
+        help='The Python interpreter to use, e.g., --python=python3.9 '
+             'will use the python3.9 interpreter to create the new '
              'environment.  The default is the interpreter that virtualenv '
              'was installed with.'
     )

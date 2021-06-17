@@ -202,9 +202,8 @@ class InvirtualenvRPM(InvirtualenvPlugin):
         logger.debug(self.render_template_with_config())
         logger.debug('Deploy.conf')
         logger.debug(open('deploy.conf').read())
-        print(f'CWD: {os.getcwd()}')
-        print(f'source_dir: {self.source_dir}')
-        os.system('ls -lR')
+        logger.debug('CWD: %s', os.getcwd())
+        logger.debug('source_dir: %s', self.source_dir)
         with open('package.spec', 'w') as spec_handle:
             spec_handle.write(self.render_template_with_config())
         command = [find_executable('rpmbuild'), '-ba', 'package.spec']
