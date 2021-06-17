@@ -171,7 +171,7 @@ class InvirtualenvPlugin(object):
             logger.debug('Making sure the wheel package is installed')
             subprocess.check_call(self.pip_cmd + ['install', '-U', 'pip'])  # nosec
             subprocess.check_call(self.pip_cmd + ['install', 'wheel'])  # nosec
-            deps = self.config['pip'].get('deps', []) + ['invirtualenv']
+            deps = self.config['pip'].get('deps', []) + ['invirtualenv', 'configparser']
             cmd = self.pip_cmd + ['wheel', '-w', '.'] + deps
             logger.debug('Running pip command %r to generate wheel packages', cmd)
             try:
@@ -210,7 +210,7 @@ class InvirtualenvPlugin(object):
                     logger.debug('Running pip command %r to generate package hash for %r', cmd, filename)
                     hash_result = subprocess.check_output(cmd).decode()  # nosec
                     if file_wheel_name and file_wheel_version:
-                        logger.debug(f"file_wheel_name==file_wheel_version")
+                        logger.debug("file_wheel_name==file_wheel_version".format(**locals()))
                         hashes['{file_wheel_name}=={file_wheel_version}'.format(**locals())] = '='.join(hash_result.split(os.linesep)[1].split('=')[1:])
                         logger.debug('Got requirements line %r', hashes['{file_wheel_name}=={file_wheel_version}'.format(**locals())])
                     else:

@@ -275,6 +275,8 @@ def build_deploy_virtualenv(arguments=None, configuration=None, update_existing=
 
     # By default don't use local wheels.
     use_local_wheels = config['global'].get('use_local_wheels', 'false').lower() in ['1', 'true', 'yes', 'on']
+    use_index = str(not use_local_wheels)  # default is to disable the index if using local wheels
+    use_index = config['global'].get('use_index', use_index).lower() in ['1', 'true', 'yes', 'on']
 
     if verbose:
         display_header('Building virtualenv')
@@ -287,7 +289,6 @@ def build_deploy_virtualenv(arguments=None, configuration=None, update_existing=
     )
 
     deps = config['pip']['deps']
-    use_index = config['global'].get('use_index', True)
     if verbose:
         display_header('Installing python package dependencies')
     try:

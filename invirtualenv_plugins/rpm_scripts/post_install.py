@@ -6,6 +6,7 @@ import shutil
 import sys
 
 from configparser import ConfigParser, NoOptionError
+from invirtualenv import __version__ as invirtualenv_version
 from invirtualenv.deploy import build_deploy_virtualenv
 
 
@@ -47,6 +48,8 @@ def main():
 
     logging.basicConfig(level=log_level, format='%(asctime)s %(levelname)-5s [%(filename)s:%(lineno)d] %(message)s', datefmt='%Y%m%d:%H:%M:%S')
     logger = logging.getLogger(os.path.basename(sys.argv[0]))
+
+    logger.debug('Starting rpm package post installprocessing using invirtualenv version %s' % invirtualenv_version)
 
     logger.debug('Running post install steps, from directory %r' % os.getcwd())
     upgrade = False

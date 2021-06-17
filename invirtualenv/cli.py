@@ -6,13 +6,26 @@ import logging
 import os
 import shutil
 import sys
+from . import __version__ as invirtualenv_version
 from .config import get_configuration_dict
 from .contextmanager import InTemporaryDirectory
 from .exceptions import PackageGenerationFailure
 from .plugin import create_package, create_package_configuration, get_package_plugin, package_formats
 
 
-LOGGER = logging.getLogger(__name__)
+logger_name = os.path.basename(sys.argv[0]) if __name__ == '__main__' else __name__
+log_level = logging.INFO
+log_level_name = os.environ.get('INVIRTUALENV_LOG_LEVEL', 'info').lower()
+log_level = logging.INFO
+if log_level_name in ['debug']:
+    log_level = logging.DEBUG
+elif log_level_name in ['warn', 'warning']:
+    log_level = logging.WARNING
+
+logging.basicConfig(level=log_level, format='%(asctime)s %(levelname)-5s [%(filename)s:%(lineno)d] %(message)s',
+                    datefmt='%Y%m%d:%H:%M:%S')
+
+LOGGER = logging.getLogger(logger_name)
 
 
 def parse_cli_arguments():
@@ -21,8 +34,6 @@ def parse_cli_arguments():
     package_choices = package_formats()
 
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-
-    parser.add_argument('--debug', default=False, action='store_true', help='Enable debug logging')
 
     parser.add_argument('--deploy_conf', default='deploy.conf', help='Deploy configuration filename or url')
     command_parser = parser.add_subparsers(title='command', dest='command')
@@ -131,10 +142,8 @@ def list_plugins_command(args):
 
 
 def main(test=False):
+    LOGGER.debug('Invirtualenv version %s', invirtualenv_version)
     args = parse_cli_arguments()
-
-    if args.debug:
-        logging.basicConfig(level=logging.DEBUG)
 
     rc = 0
     output = ''
