@@ -161,7 +161,7 @@ class InvirtualenvPlugin(object):
             with open('deploy.conf.unparsed', 'w') as deploy_conf_handle:
                 self.loaded_configuration.write(deploy_conf_handle)
             with open('deploy.conf.unparsed') as fh:
-                logger.debug('deploy.conf.unparsed', fh.read())
+                logger.debug('deploy.conf.unparsed %s', fh.read())
             generate_parsed_config_file('deploy.conf.unparsed', 'deploy.conf')
             package = self.run_package_command(hashes, wheel_dir=wheel_dir)  # pylint: disable=E1128,E1111
             if package and os.path.exists(package):
