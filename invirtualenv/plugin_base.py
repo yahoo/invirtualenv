@@ -56,6 +56,27 @@ class InvirtualenvPlugin(object):
         return True
 
     @property
+    def basepython(self):
+        """
+        Determine the value of basepython for this plugin
+
+        Returns
+        -------
+        str: basepython
+        """
+        basepython = self.config['global'].get('basepython', 'python3')
+
+        # If basepython is set in the packages section it needs to override the global default
+        for format in self.package_formats:
+            pkg_cfg = self.config.get(format + "_package", {})
+            if basepython in pkg_cfg.keys():
+                print('Using basepython from %s_package section' % format)
+                basepython = pkg_cfg['basepython']
+
+
+        return basepython
+
+    @property
     def pip_cmd(self):
         """
         Get the pip command used to create wheels of packages.
@@ -71,8 +92,7 @@ class InvirtualenvPlugin(object):
         list
             Command that can be used to invoke pip
         """
-        basepython = self.config['global'].get('basepython', 'python3')
-        python_executable = find_executable(basepython)
+        python_executable = find_executable(self.basepython)
         if not python_executable:
             python_executable = sys.executable
         bin_dir = os.path.dirname(python_executable)
@@ -117,6 +137,9 @@ class InvirtualenvPlugin(object):
         if package_type not in self.supported_formats():
             return None
 
+        use_local_wheels = self.config['global'].get('use_local_wheels', 'false').lower() in ['1', 'true', 'yes', 'on']
+        include_hashes = self.config['pip'].get('hash_dependencies', 'false').lower() in ['1', 'true', 'yes', 'on']
+
         original_directory = os.getcwd()
 
         with InTemporaryDirectory() as tempdir:
@@ -128,7 +151,10 @@ class InvirtualenvPlugin(object):
             self.generate_wheel_archive()
             deps = []
             for package_name, package_hash in hashes.items():
-                deps.append('{package_name} --hash={package_hash}'.format(package_name=package_name, package_hash=package_hash))
+                if include_hashes:
+                    deps.append('{package_name} --hash={package_hash}'.format(package_name=package_name, package_hash=package_hash))
+                else:
+                    deps.append(package_name)
             self.config['pip']['deps'] = deps
             if self.hash:
                 self.loaded_configuration['pip']['deps'] = '\n'.join(deps)
@@ -210,7 +236,7 @@ class InvirtualenvPlugin(object):
                     logger.debug('Running pip command %r to generate package hash for %r', cmd, filename)
                     hash_result = subprocess.check_output(cmd).decode()  # nosec
                     if file_wheel_name and file_wheel_version:
-                        logger.debug("file_wheel_name==file_wheel_version".format(**locals()))
+                        logger.debug("{file_wheel_name}=={file_wheel_version}".format(**locals()))
                         hashes['{file_wheel_name}=={file_wheel_version}'.format(**locals())] = '='.join(hash_result.split(os.linesep)[1].split('=')[1:])
                         logger.debug('Got requirements line %r', hashes['{file_wheel_name}=={file_wheel_version}'.format(**locals())])
                     else:
@@ -234,6 +260,9 @@ class InvirtualenvPlugin(object):
 
         original_directory = os.getcwd()
 
+        use_local_wheels = self.config['global'].get('use_local_wheels', 'false').lower() in ['1', 'true', 'yes', 'on']
+        include_hashes = self.config['pip'].get('hash_dependencies', 'false').lower() in ['1', 'true', 'yes', 'on']
+
         with InTemporaryDirectory() as tempdir:
             self.copy_files_to_tempdir(tempdir)
             if self._wheel_hashes:
@@ -245,13 +274,13 @@ class InvirtualenvPlugin(object):
 
             deps = []
             for package_name, package_hash in hashes.items():
-                if self.config['global'].get('use_local_wheels', 'false').lower() in ['1', 'true', 'yes', 'on']:
+                if use_local_wheels and include_hashes:
                     deps.append('{package_name} --hash={package_hash}'.format(package_name=package_name, package_hash=package_hash))
                 else:
                     deps.append(package_name)
             self.config['pip']['deps'] = deps
 
-            if self.hash:
+            if use_local_wheels or include_hashes:
                 self.loaded_configuration['pip']['deps'] = '\n'.join(deps)
 
         template = Template(template_str)

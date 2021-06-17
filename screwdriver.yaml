@@ -72,7 +72,6 @@ jobs:
     verify_rpm_centos8:
         template: python/package_rpm
         environment:
-            BASE_PYTHON: python3.6
             PUBLISH: False
         image: centos:8
         steps:
