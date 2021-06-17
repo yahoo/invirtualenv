@@ -134,7 +134,7 @@ class InvirtualenvDocker(InvirtualenvPlugin):
     def system_requirements_ok(self):
         if find_executable('docker'):
             return True
-        logger.debug('The docker command is not present, disabling the rpm plugin')
+        logger.debug('The docker command is not present, disabling the docker plugin')
         return False
 
     def generate_wheel_archive(self, filename=None):
