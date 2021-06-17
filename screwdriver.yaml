@@ -72,6 +72,7 @@ jobs:
     verify_rpm_centos8:
         template: python/package_rpm
         environment:
+            BASE_PYTHON: python3.6
             PUBLISH: False
         image: centos:8
         steps:
@@ -90,12 +91,12 @@ jobs:
                         serviceping==18.8.1
 
                     [rpm_package]
-                    basepython=/usr/bin/python3
+                    basepython=/usr/bin/python36
                     deps:
-                        python3
+                        python36
                     EOF
             -   postupdate_version: |
-                    export PIP_FIND_LINKS="file://`pwd`/dist"
+                    export PIP_FIND_LINKS="file://`pwd`/dist/"
                     $BASE_PYTHON setup.py sdist bdist_wheel
                     echo $PIP_FIND_LINKS
             -   postinstall_utility: |
