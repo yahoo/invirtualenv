@@ -311,7 +311,6 @@ def install_requirements(
         command = [
             os.path.join(virtualenv_bin, 'pip'),
             'install',
-            # '--cache-dir', pip_cache_dir,
             '-r', requirement,
         ] + extra_pip_args
         logger.debug('Running command: %s', ' '.join(command))
