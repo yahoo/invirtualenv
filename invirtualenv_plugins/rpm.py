@@ -57,6 +57,7 @@ export PIP_CMD="pip"
 echo "Attempting to build bootstrap venv using {{rpm_package['basepython']}}"
 if [ ! -e "{{rpm_package['basepython']}}" ]; then
     echo "The python_interpreter was not found"
+    exit 1
 fi
 
 {{rpm_package['basepython']}} -m venv "/usr/share/%{name}_%{version}/invirtualenv_deployer"
