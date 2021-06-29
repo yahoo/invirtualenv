@@ -64,17 +64,7 @@ class InvirtualenvPlugin(object):
         -------
         str: basepython
         """
-        basepython = self.config['global'].get('basepython', 'python3')
-
-        # If basepython is set in the packages section it needs to override the global default
-        for format in self.package_formats:
-            pkg_cfg = self.config.get(format + "_package", {})
-            if basepython in pkg_cfg.keys():
-                print('Using basepython from %s_package section' % format)
-                basepython = pkg_cfg['basepython']
-
-
-        return basepython
+        return self.get_plugin_config_value('basepython', 'python3')
 
     @property
     def pip_cmd(self):
@@ -105,6 +95,34 @@ class InvirtualenvPlugin(object):
             if os.path.exists(pip_exe):
                 return [pip_exe]
             return [os.path.join(bin_dir, 'pip')]
+
+    def get_plugin_config_value(self, key, default=''):
+        """
+        Get a config value from the plugin configuration, returning the global value if it is not set for the plugin
+
+        Parameters
+        ----------
+        key: str
+            configuration key
+
+        default: str, optional
+            default value if the setting is not set at all
+
+        Returns
+        -------
+        str:
+            value
+        """
+        value = self.config['global'].get(key, default)
+
+        # If basepython is set in the packages section it needs to override the global default
+        for format in self.package_formats:
+            ext = '_container' if format in ['docker'] else '_package'
+            pkg_cfg = self.config.get(format + ext, {})
+            if key in pkg_cfg.keys():
+                print('Using %s from %s_package section' % (key, format))
+                value = pkg_cfg[key]
+        return value
 
     def supported_formats(self):
         """
@@ -137,8 +155,8 @@ class InvirtualenvPlugin(object):
         if package_type not in self.supported_formats():
             return None
 
-        use_local_wheels = self.config['global'].get('use_local_wheels', 'false').lower() in ['1', 'true', 'yes', 'on']
-        include_hashes = self.config['pip'].get('hash_dependencies', 'false').lower() in ['1', 'true', 'yes', 'on']
+        use_local_wheels = self.get_plugin_config_value('use_local_wheels', 'false').lower() in ['1', 'true', 'yes', 'on']
+        include_hashes = self.get_plugin_config_value('hash_dependencies', 'false').lower() in ['1', 'true', 'yes', 'on']
 
         original_directory = os.getcwd()
 

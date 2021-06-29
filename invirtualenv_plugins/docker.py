@@ -80,6 +80,7 @@ RUN chmod 755 /tmp/docker_build.sh && /tmp/docker_build.sh && rm /tmp/docker_bui
 DOCKER_CONFIG_DEFAULT = """[docker_container]
 add=
 base_image=ubuntu:17.10
+basepython=
 cmd=
 container_name=
 copy:
@@ -110,6 +111,7 @@ class InvirtualenvDocker(InvirtualenvPlugin):
         'docker_container': {
             'add': list,
             'base_image': str,
+            'basepython': str,
             'container_name': str,
             'cmd': str,
             'copy': list,
@@ -149,15 +151,18 @@ class InvirtualenvDocker(InvirtualenvPlugin):
         return {}
 
     def run_package_command(self, package_hashes, wheel_dir='wheels'):
+        self.config['global']['basepython'] = self.basepython
+        self.config['global']['use_local_wheels'] = 'False'
         logger.debug('Config')
         logger.debug(self.config)
         if not self.config['docker_container'].get('container_name', None):
             self.config['docker_container']['container_name'] = 'invirtualenvapp/' + self.config['global']['name']
         self.config['docker_container']['files'].append('deploy.conf /var/lib/invirtualenv/deploy.conf')
-        for package, hash in package_hashes.items():
-            source_filename = os.path.join(wheel_dir, package)
-            dest_filename = '/var/lib/invirtualenv/wheels/{name}/{package}'.format(name=self.config['global']['name'], package=package)
-            self.config['docker_container']['files'].append(source_filename + ' ' + dest_filename)
+        self.config['docker_container']['files'].append('{wheel_dir} /var/lib/invirtualenv/wheels/{name}'.format(name=self.config['global']['name'],wheel_dir=wheel_dir))
+        # for package, hash in package_hashes.items():
+        #     source_filename = os.path.join(wheel_dir, package)
+        #     dest_filename = '/var/lib/invirtualenv/wheels/{name}/{package}'.format(name=self.config['global']['name'], package=package)
+        #     self.config['docker_container']['files'].append(source_filename + ' ' + dest_filename)
 
         self.write_command_scripts()
 
@@ -171,3 +176,9 @@ class InvirtualenvDocker(InvirtualenvPlugin):
         subprocess.check_call(command)
         logger.debug('Created container %r', container_tag)
         return container_tag
+
+    def add_plugin_configuration(self):
+        self.loaded_configuration['global']['basepython'] = self.basepython
+        self.loaded_configuration['global']['use_local_wheels'] = 'False'
+        self.config['global']['use_local_wheels'] = 'False'
+        self.config['docker_container']['use_local_wheels'] = 'False'
