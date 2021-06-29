@@ -120,7 +120,6 @@ class InvirtualenvPlugin(object):
             ext = '_container' if format in ['docker'] else '_package'
             pkg_cfg = self.config.get(format + ext, {})
             if key in pkg_cfg.keys():
-                print('Using %s from %s_package section' % (key, format))
                 value = pkg_cfg[key]
         return value
 
