@@ -16,17 +16,17 @@ import shutil
 import subprocess  # nosec
 import sys
 
+logger = logging.getLogger(__name__)  # pylint: disable=C0103
+
 try:
     import venv
     BUILTIN_VENV = True
+    logger.warning('The venv module is missing in this interpreter')
 except ImportError:
     BUILTIN_VENV = False
 
 from .exceptions import BuildException
 from .utility import chown_recursive, which
-
-
-logger = logging.getLogger(__name__)  # pylint: disable=C0103
 
 
 def default_virtualenv_directory():
