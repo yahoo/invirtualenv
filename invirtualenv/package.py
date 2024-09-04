@@ -52,7 +52,7 @@ def get_index_url():
     return index_url.rstrip('/')
 
 
-def package_files(package: str, pypi_url: str='https://pypi.org') -> List[str]:
+def package_files(package: str, pypi_url: str='https://pypi.org', timeout: float=1500) -> List[str]:
     if not pypi_url:
         pypi_url = get_index_url()
     name = pkg_resources.safe_name(package)
@@ -60,7 +60,7 @@ def package_files(package: str, pypi_url: str='https://pypi.org') -> List[str]:
     parser = HTMLLinkParser()
 
     # Stream the index
-    req = requests.get(url, stream=True)
+    req = requests.get(url, stream=True, timeout=timeout)
     for line in req.iter_lines():
         line = line.decode(errors='ignore')
         parser.feed(line)
