@@ -189,7 +189,7 @@ def build_virtualenv(
         )
         venv.create(virtualenv_dir, with_pip=True)
     else:
-        logger.debug('Building virtualenv using the virtualenv package, BUILTIN_VENV =', BUILTIN_VENV)
+        logger.debug('Building virtualenv using the virtualenv package, BUILTIN_VENV = %s' % BUILTIN_VENV)
         os.chdir(directory)
         command = [virtualenv_command()]
         if python_interpreter:
