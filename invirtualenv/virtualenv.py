@@ -181,15 +181,13 @@ def build_virtualenv(
 
     virtualenv_dir = os.path.join(directory, name)
 
-    try:
+    if python_interpreter and BUILTIN_VENV and not hasattr(sys, 'frozen'):
         logger.debug(
-            'Attempting to build virtualenv %r using the built in venv module',
+            'Building virtualenv %r using the built in venv module',
             virtualenv_dir
         )
-        import venv
         venv.create(virtualenv_dir, with_pip=True)
-    except ImportError:
-        logger.warning('Unable to create virtualenv using the venv module, falling back to the virtualenv package')
+    else:
         logger.debug('Building virtualenv using the virtualenv package, BUILTIN_VENV = BUILTIN_VENV')
         os.chdir(directory)
         command = [virtualenv_command()]
