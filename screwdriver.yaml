@@ -34,41 +34,6 @@ jobs:
         template: python/validate_security
         requires: [~commit, ~pr]
 
-    verify_rpm_centos7:
-        template: python/package_rpm
-        environment:
-            PUBLISH: False
-        image: centos:7
-        steps:
-            -   postmotd: |
-                    cat > deploy.conf <<EOF
-                    [global]
-                    name = serviceping
-                    description = invirtualenv utility for deploying python applicatons
-                    version = 18.8.1
-                    link_bin_files = True
-                    virtualenv_dir = /var/lib/virtualenvs
-                    basepython=/usr/bin/python3
-
-                    [pip]
-                    deps:
-                        serviceping==18.8.1
-
-                    [rpm_package]
-                    basepython=/usr/bin/python3
-                    deps:
-                        python3
-                    EOF
-            -   postupdate_version: |
-                    export PIP_FIND_LINKS="file://`pwd`/dist"
-                    $BASE_PYTHON setup.py sdist bdist_wheel
-                    echo $PIP_FIND_LINKS
-            -   postinstall_utility: |
-                    # Install the version from this repo instead of the invirtualenv from pypi
-                    $BASE_PYTHON -m pip install .
-            -   preend: /usr/bin/serviceping --help
-        requires: [~commit, ~pr]
-
     verify_rpm_centos8:
         template: python/package_rpm
         environment:
