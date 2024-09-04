@@ -24,9 +24,7 @@ jobs:
 
     # Check for use of package dependencies that have security issues
     validate_dep:
-        template: python/validate_safety
-        steps:
-            - validate_code: pypirun --upgrade_pip safety,. safety check --json -o safetydb.json || true
+        template: python/validate_dependencies
         requires: [~commit, ~pr]
 
     # Check code for common security issues
