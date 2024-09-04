@@ -181,7 +181,7 @@ def build_virtualenv(
 
     virtualenv_dir = os.path.join(directory, name)
 
-    if False and not python_interpreter and BUILTIN_VENV and \
+    if python_interpreter and BUILTIN_VENV and \
             not hasattr(sys, 'frozen'):
         logger.debug(
             'Building virtualenv %r using the built in venv module',
