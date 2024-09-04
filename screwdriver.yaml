@@ -31,6 +31,7 @@ jobs:
         template: python/package_rpm
         environment:
             PUBLISH: False
+            RPM_SCRIPTLET_DEBUG: True
         image: almalinux:8
         steps:
             -   postmotd: |
