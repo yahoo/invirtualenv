@@ -181,23 +181,20 @@ def build_virtualenv(
 
     virtualenv_dir = os.path.join(directory, name)
 
-    if python_interpreter and BUILTIN_VENV and \
-            not hasattr(sys, 'frozen'):
+    if BUILTIN_VENV and not hasattr(sys, 'frozen'):
         logger.debug(
             'Building virtualenv %r using the built in venv module',
             virtualenv_dir
         )
         venv.create(virtualenv_dir, with_pip=True)
     else:
-        logger.debug('Building virtualenv using the virtualenv package, BUILTIN_VENV = %s' % BUILTIN_VENV)
+        logger.debug('Building virtualenv using the virtualenv package, BUILTIN_VENV = BUILTIN_VENV')
         os.chdir(directory)
         command = [virtualenv_command()]
         if python_interpreter:
             command += ['-p', python_interpreter]
         command += [name]
-        logger.debug(
-            'Building virtualenv using external command %r', ' '.join(command)
-        )
+        logger.debug('Building virtualenv using external command %r', ' '.join(command))
         try:
             output = subprocess.check_output(  # nosec
                 command,
