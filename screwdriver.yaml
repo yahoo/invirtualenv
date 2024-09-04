@@ -27,11 +27,11 @@ jobs:
         template: python/validate_security
         requires: [~commit, ~pr]
 
-    verify_rpm_centos8:
+    verify_rpm_alma8:
         template: python/package_rpm
         environment:
             PUBLISH: False
-        image: centos:8
+        image: almalinux:8
         steps:
             -   postmotd: |
                     cat > deploy.conf <<EOF
@@ -102,7 +102,7 @@ jobs:
         template: python/generate_version
         requires: [
             validate_test, validate_lint, validate_codestyle, validate_security,
-            verify_rpm_centos8, verify_rpm_fedora
+            verify_rpm_alma8, verify_rpm_fedora
         ]
 
     publish_test_pypi:
