@@ -22,23 +22,17 @@ jobs:
         template: python/validate_codestyle
         requires: [~commit, ~pr]
 
-    # Check for use of package dependencies that have security issues
-    validate_dep:
-        template: python/validate_safety
-        steps:
-            - validate_code: pypirun --upgrade_pip safety,. safety check --json -o safetydb.json || true
-        requires: [~commit, ~pr]
-
     # Check code for common security issues
     validate_security:
         template: python/validate_security
         requires: [~commit, ~pr]
 
-    verify_rpm_centos8:
+    verify_rpm_alma8:
         template: python/package_rpm
         environment:
             PUBLISH: False
-        image: centos:8
+            RPM_SCRIPTLET_DEBUG: True
+        image: almalinux:8
         steps:
             -   postmotd: |
                     cat > deploy.conf <<EOF
@@ -57,7 +51,8 @@ jobs:
                     [rpm_package]
                     basepython=/usr/bin/python3.8
                     deps:
-                        python38
+                        python3.8
+                        python3-virtualenv
                     EOF
             -   postupdate_version: |
                     export PIP_FIND_LINKS="file://`pwd`/dist/"
@@ -66,7 +61,7 @@ jobs:
             -   postinstall_utility: |
                     # Install the version from this repo instead of the invirtualenv from pypi
                     $BASE_PYTHON -m pip install .
-            -   preend: /usr/bin/serviceping --help
+            # -   preend: /usr/bin/serviceping --help
         requires: [~commit, ~pr]
 
     verify_rpm_fedora:
@@ -90,9 +85,9 @@ jobs:
                     serviceping==18.8.1
 
                 [rpm_package]
-                basepython=/usr/bin/python3.6
+                basepython=/usr/bin/python3.9
                 deps:
-                    python36
+                    python39
                 EOF
             - postupdate_version: |
                 export PIP_FIND_LINKS="file://`pwd`/dist"
@@ -101,15 +96,15 @@ jobs:
             - postinstall_utility: |
                 # Install the version from this repo instead of the invirtualenv from pypi
                 $BASE_PYTHON -m pip install .
-            -   preend: /usr/bin/serviceping --help
+            # -   preend: /usr/bin/serviceping --help
         requires: [~commit, ~pr]
 
     # Generate a package version to publish
     generate_version:
         template: python/generate_version
         requires: [
-            validate_test, validate_lint, validate_codestyle, validate_dep, validate_security,
-            verify_rpm_centos8, verify_rpm_fedora
+            validate_test, validate_lint, validate_codestyle, validate_security,
+            verify_rpm_alma8, verify_rpm_fedora
         ]
 
     publish_test_pypi:

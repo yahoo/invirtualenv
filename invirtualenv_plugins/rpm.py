@@ -63,6 +63,7 @@ fi
 {{rpm_package['basepython']}} -m venv "/usr/share/%{name}_%{version}/invirtualenv_deployer"
 RC="$?"
 if [ "$RC" != "0" ]; then
+    echo "Python interpreter {{rpm_package['basepython']}} has a broken venv module, falling back to the virtualenv utility"
     virtualenv -p {{rpm_package['basepython']}} /usr/share/%{name}_%{version}/invirtualenv_deployer
 fi
 
