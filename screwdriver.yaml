@@ -52,6 +52,7 @@ jobs:
                     basepython=/usr/bin/python3.11
                     deps:
                         python3.11
+                        python3-virtualenv
                     EOF
             -   postupdate_version: |
                     export PIP_FIND_LINKS="file://`pwd`/dist/"
