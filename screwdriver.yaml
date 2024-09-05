@@ -88,7 +88,6 @@ jobs:
                 basepython=/usr/bin/python3.9
                 deps:
                     python39
-                    python39-venv
                 EOF
             - postupdate_version: |
                 export PIP_FIND_LINKS="file://`pwd`/dist"
