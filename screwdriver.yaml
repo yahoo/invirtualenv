@@ -49,9 +49,9 @@ jobs:
                         serviceping==18.8.1
 
                     [rpm_package]
-                    basepython=/usr/bin/python3.11
+                    basepython=/usr/bin/python3.8
                     deps:
-                        python3.11
+                        python3.8
                         python3-virtualenv
                     EOF
             -   postupdate_version: |
