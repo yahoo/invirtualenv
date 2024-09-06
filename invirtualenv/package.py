@@ -52,7 +52,7 @@ def get_index_url():
     return index_url.rstrip('/')
 
 
-def package_files(package: str, pypi_url: str='https://pypi.org', timeout: float=1500) -> List[str]:
+def package_files(package: str, pypi_url: str='https://pypi.org', timeout: float=1500.0) -> List[str]:
     if not pypi_url:
         pypi_url = get_index_url()
     name = pkg_resources.safe_name(package)

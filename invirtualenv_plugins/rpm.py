@@ -187,7 +187,10 @@ class InvirtualenvRPM(InvirtualenvPlugin):
                 raise FileNotFoundError('[rpm_page] files entry %r not found' % full_source)
             logger.debug('copying', full_source, full_dest)
             os.makedirs(os.path.dirname(full_dest), exist_ok=True)
-            shutil.copyfile(full_source, full_dest)
+            try:
+               shutil.copyfile(full_source, full_dest)
+            except IsADirectoryError:
+                os.makedirs(full_dest, exist_ok=True)
 
     def system_requirements_ok(self):
         if find_executable('rpmbuild'):
