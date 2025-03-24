@@ -9,7 +9,7 @@ try:
     import pkg_resources
     __version__: str = pkg_resources.get_distribution("invirtualenv").version
 except ImportError:
-    ___version__ = '0.0.0'
+    __version__ = '0.0.0'
 
 __copyright__ = "Copyright 2016, Yahoo Inc."
 __all__ = [
